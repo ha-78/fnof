@@ -1,0 +1,30 @@
+<?php
+
+return [
+    'users' => 'Users',
+    'manage' => 'Manage',
+    'name' => 'Name',
+    'email' => 'Email',
+    'role' => 'Role',
+    'log_out' => 'Log out',
+    'save_role' => 'Save role',
+    'make_user' => 'Make user',
+    'permissions' => 'Permissions',
+    'save_permissions' => 'Save permissions',
+    'no_permissions' => 'There are no permissions to assign yet.',
+    'role_updated' => 'The role has been updated.',
+    'features_updated' => 'The permissions have been updated.',
+    'features_invalid' => 'The permissions are invalid.',
+    'last_god' => 'The last God user cannot be changed.',
+    'password' => 'Password',
+    'password_confirmation' => 'Confirm password',
+    'password_mismatch' => 'The password confirmation does not match.',
+    'god_created' => 'Created God user :email.',
+    'back' => 'Back to users',
+    'roles' => [
+        'god' => 'God',
+        'admin' => 'Admin',
+        'user' => 'User',
+        'reader' => 'Reader',
+    ],
+];

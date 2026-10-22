@@ -1,0 +1,30 @@
+<?php
+
+return [
+    'users' => 'Användare',
+    'manage' => 'Hantera',
+    'name' => 'Namn',
+    'email' => 'E-post',
+    'role' => 'Roll',
+    'log_out' => 'Logga ut',
+    'save_role' => 'Spara roll',
+    'make_user' => 'Gör till användare',
+    'permissions' => 'Behörigheter',
+    'save_permissions' => 'Spara behörigheter',
+    'no_permissions' => 'Det finns inga behörigheter att tilldela ännu.',
+    'role_updated' => 'Rollen är uppdaterad.',
+    'features_updated' => 'Behörigheterna är uppdaterade.',
+    'features_invalid' => 'Behörigheterna är ogiltiga.',
+    'last_god' => 'Den sista God-användaren kan inte ändras.',
+    'password' => 'Lösenord',
+    'password_confirmation' => 'Bekräfta lösenord',
+    'password_mismatch' => 'Lösenordsbekräftelsen stämmer inte.',
+    'god_created' => 'Skapade God-användaren :email.',
+    'back' => 'Tillbaka till användare',
+    'roles' => [
+        'god' => 'God',
+        'admin' => 'Admin',
+        'user' => 'Användare',
+        'reader' => 'Läsare',
+    ],
+];
