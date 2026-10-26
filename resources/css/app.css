@@ -3,31 +3,146 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+/* Step 1 is lightest, step 5 is darkest. */
+:root {
+    --color-a-1: #f2f5ea;
+    --color-a-2: #d7e3c2;
+    --color-a-3: #a9c184;
+    --color-a-4: #6b8f4e;
+    --color-a-5: #3c5228;
+    --color-b-1: #f7f1ec;
+    --color-b-2: #e6cdc2;
+    --color-b-3: #c47868;
+    --color-b-4: #8a3d32;
+    --color-b-5: #4e241c;
+    --color-c-1: #fcf6dc;
+    --color-c-2: #f9eeae;
+    --color-c-3: #f5e07a;
+    --color-c-4: #efd04a;
+    --color-c-5: #e4bc28;
+    --color-d-1: #f8f0e6;
+    --color-d-2: #e8d0b6;
+    --color-d-3: #c89668;
+    --color-d-4: #935432;
+    --color-d-5: #50281a;
+}
+
+:root {
+    color-scheme: light;
+    --canvas: var(--color-d-1);
+    --header: var(--color-a-3);
+    --ink: var(--color-d-5);
+    --muted: var(--color-d-4);
+    --sun: var(--color-c-4);
+    --mint: var(--color-a-2);
+    --lilac: var(--color-b-2);
+    --rose: var(--color-c-2);
+    --form: var(--color-d-2);
+    --field: var(--color-c-1);
+    --button: var(--color-b-3);
+    --button-ink: var(--color-d-5);
+    --chip: var(--color-c-3);
+    --pill: var(--color-c-2);
+    --pill-active: var(--color-c-5);
+    --status: var(--color-a-2);
+    --danger: var(--color-b-5);
+    --danger-soft: var(--color-b-2);
+    --reply: var(--color-c-1);
+    --aside: var(--color-a-2);
+    --row: var(--color-c-1);
+    --row-alt: var(--color-a-1);
 }
 
 html[data-theme='dark'] {
     color-scheme: dark;
+    --canvas: var(--color-d-5);
+    --header: var(--color-a-5);
+    --ink: var(--color-d-1);
+    --muted: var(--color-d-2);
+    --sun: var(--color-a-4);
+    --mint: var(--color-d-4);
+    --lilac: var(--color-b-5);
+    --rose: var(--color-a-5);
+    --form: var(--color-a-4);
+    --field: var(--color-d-4);
+    --button: var(--color-b-4);
+    --button-ink: var(--color-d-1);
+    --chip: var(--color-b-4);
+    --pill: var(--color-d-4);
+    --pill-active: var(--color-b-4);
+    --status: var(--color-a-4);
+    --danger: var(--color-d-1);
+    --danger-soft: var(--color-b-5);
+    --reply: var(--color-b-4);
+    --aside: var(--color-b-5);
+    --row: var(--color-d-4);
+    --row-alt: var(--color-a-5);
 }
 
-html[data-theme='dark'] body {
-    background-color: #1c1917;
-    color: #f5f5f4;
+@theme inline {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-canvas: var(--canvas);
+    --color-header: var(--header);
+    --color-ink: var(--ink);
+    --color-muted: var(--muted);
+    --color-sun: var(--sun);
+    --color-mint: var(--mint);
+    --color-lilac: var(--lilac);
+    --color-rose: var(--rose);
+    --color-form: var(--form);
+    --color-field: var(--field);
+    --color-button: var(--button);
+    --color-button-ink: var(--button-ink);
+    --color-chip: var(--chip);
+    --color-pill: var(--pill);
+    --color-pill-active: var(--pill-active);
+    --color-status: var(--status);
+    --color-danger: var(--danger);
+    --color-danger-soft: var(--danger-soft);
+    --color-reply: var(--reply);
+    --color-aside: var(--aside);
+    --color-row: var(--row);
+    --color-row-alt: var(--row-alt);
 }
 
-html[data-theme='dark'] header,
-html[data-theme='dark'] main .bg-white {
-    background-color: #292524;
-    color: #f5f5f4;
-}
+@layer base {
+    :focus-visible {
+        outline: 2px solid var(--ink);
+        outline-offset: 2px;
+    }
 
-html[data-theme='colorful'] body {
-    background-color: #faf5ff;
-    color: #3b0764;
-}
+    ::selection {
+        background: var(--color-c-3);
+        color: var(--color-d-5);
+    }
 
-html[data-theme='colorful'] header {
-    background-color: #f3e8ff;
+    input[type='checkbox'] {
+        appearance: none;
+        display: inline-grid;
+        width: 1.15rem;
+        height: 1.15rem;
+        flex: none;
+        margin: 0;
+        place-content: center;
+        border-radius: 0.45rem;
+        background-color: var(--field);
+    }
+
+    input[type='checkbox']::after {
+        content: '';
+        width: 0.3rem;
+        height: 0.55rem;
+        border-right: 2px solid transparent;
+        border-bottom: 2px solid transparent;
+        transform: rotate(40deg) translate(-1px, -1px);
+    }
+
+    input[type='checkbox']:checked {
+        background-color: var(--button);
+    }
+
+    input[type='checkbox']:checked::after {
+        border-color: var(--button-ink);
+    }
 }

@@ -1,11 +1,24 @@
-@props(['body', 'author' => null, 'postedAt', 'compact' => false])
+@props(['body', 'author' => null, 'postedAt', 'compact' => false, 'tone' => null, 'toneIndex' => 0])
+
+@php
+    $resolvedTone = $tone ?? ['sun', 'mint', 'lilac', 'rose'][$toneIndex % 4];
+
+    $toneClass = match ($resolvedTone) {
+        'mint' => 'bg-mint',
+        'lilac' => 'bg-lilac',
+        'rose' => 'bg-rose',
+        'reply' => 'bg-reply',
+        default => 'bg-sun',
+    };
+@endphp
 
 <article {{ $attributes->class([
-    'rounded-lg border border-stone-200 bg-white',
-    'p-3' => ! $compact,
-    'px-3 py-2' => $compact,
+    'text-ink',
+    $toneClass,
+    'rounded-3xl p-4' => ! $compact,
+    'rounded-2xl px-3 py-2' => $compact,
 ]) }}>
-    <p @class(['text-stone-500', 'text-sm' => ! $compact, 'text-xs' => $compact])>
+    <p @class(['text-muted', 'text-sm' => ! $compact, 'text-xs' => $compact])>
         {{ $author ?? __('threads.removed_user') }}
         <span aria-hidden="true"> · </span>
         <time datetime="{{ $postedAt->toAtomString() }}">{{ $postedAt->timezone(config('app.timezone'))->format('Y-m-d H:i') }}</time>

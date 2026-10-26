@@ -11,7 +11,12 @@
         }
 
         function resolveTheme(pref) {
-            if (pref === 'light' || pref === 'dark' || pref === 'colorful') {
+            if (pref === 'colorful') {
+                try { localStorage.setItem(key, 'light'); } catch (e) {}
+                return 'light';
+            }
+
+            if (pref === 'light' || pref === 'dark') {
                 return pref;
             }
 

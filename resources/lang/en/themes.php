@@ -2,8 +2,7 @@
 
 return [
     'label' => 'Theme',
-    'default' => 'Default',
+    'default' => 'System',
     'light' => 'Light',
     'dark' => 'Dark',
-    'colorful' => 'Colorful',
 ];

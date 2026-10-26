@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ColorPaletteController;
 use App\Http\Controllers\DeviceRememberController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ReplyController;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/colors', ColorPaletteController::class)->name('colors');
 
 Route::middleware('auth')->group(function () {
     Route::get('/home', HomeController::class)->name('home');

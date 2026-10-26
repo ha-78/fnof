@@ -1,8 +1,12 @@
 const STORAGE_KEY = 'fnof_theme';
 
-const VALID = new Set(['default', 'light', 'dark', 'colorful']);
+const VALID = new Set(['default', 'light', 'dark']);
 
 export function normalizeTheme(value) {
+    if (value === 'colorful') {
+        return 'light';
+    }
+
     return VALID.has(value) ? value : 'default';
 }
 

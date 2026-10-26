@@ -14,7 +14,8 @@ it('names a browser and device from the user agent', function () {
 });
 
 it('falls back to the default color theme', function () {
-    expect(ColorTheme::normalize('colorful'))->toBe('colorful')
+    expect(ColorTheme::normalize('colorful'))->toBe('light')
+        ->and(ColorTheme::normalize('dark'))->toBe('dark')
         ->and(ColorTheme::normalize('nope'))->toBe('default')
         ->and(ColorTheme::normalize(null))->toBe('default');
 });
