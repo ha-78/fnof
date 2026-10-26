@@ -2,6 +2,7 @@
 
 return [
     'users' => 'Användare',
+    'account' => 'Ditt konto',
     'manage' => 'Hantera',
     'name' => 'Namn',
     'email' => 'E-post',

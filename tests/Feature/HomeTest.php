@@ -9,7 +9,9 @@ it('shows the signed-in user on the home page', function () {
         ->get(route('home'))
         ->assertSuccessful()
         ->assertSee('Välkommen')
-        ->assertSee('Hanna Anderberg');
+        ->assertSee('Hanna Anderberg')
+        ->assertSee(__('users.account'), false)
+        ->assertDontSee(__('users.log_out'));
 });
 
 it('asks guests to log in before home', function () {

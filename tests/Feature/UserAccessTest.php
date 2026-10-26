@@ -131,18 +131,26 @@ it('lets a god change another god when one remains', function () {
     expect($other->refresh()->role)->toBe(Role::Admin);
 });
 
-it('shows the user list to an admin and hides it from a reader', function () {
+it('shows each person their account, and the user list only to an admin', function () {
     $admin = User::factory()->withRole(Role::Admin)->create();
     $reader = User::factory()->create();
 
     $this->actingAs($admin)
         ->get(route('users.index'))
         ->assertSuccessful()
-        ->assertSee($reader->email);
+        ->assertSee($admin->email)
+        ->assertSee($reader->email)
+        ->assertSee(__('users.log_out'))
+        ->assertSee(__('users.manage'));
 
     $this->actingAs($reader)
         ->get(route('users.index'))
-        ->assertForbidden();
+        ->assertSuccessful()
+        ->assertSee($reader->name)
+        ->assertSee($reader->email)
+        ->assertSee(__('users.log_out'))
+        ->assertDontSee($admin->email)
+        ->assertDontSee(__('users.manage'));
 });
 
 it('sends guests to login', function () {

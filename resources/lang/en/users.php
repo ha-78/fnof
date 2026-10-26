@@ -2,6 +2,7 @@
 
 return [
     'users' => 'Users',
+    'account' => 'Your account',
     'manage' => 'Manage',
     'name' => 'Name',
     'email' => 'Email',

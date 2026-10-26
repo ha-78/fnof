@@ -15,12 +15,15 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        Gate::authorize('viewAny', User::class);
+        $user = $request->user();
 
         return view('users.index', [
-            'users' => User::query()->latest('id')->paginate(20),
+            'user' => $user,
+            'users' => $user->can('viewAny', User::class)
+                ? User::query()->latest('id')->paginate(20)
+                : null,
         ]);
     }
 

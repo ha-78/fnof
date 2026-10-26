@@ -12,12 +12,6 @@
         <header class="border-b border-stone-200 bg-white">
             <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
                 <a href="{{ url('/') }}" class="font-semibold leading-snug">{{ __('layout.brand') }}</a>
-                @auth
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="text-sm underline-offset-2 hover:underline">{{ __('users.log_out') }}</button>
-                    </form>
-                @endauth
             </div>
         </header>
         <main class="mx-auto max-w-5xl px-4 py-8">
