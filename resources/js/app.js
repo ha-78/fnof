@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import { formatPostedTimes } from './posted-at.js';
 import { applyTheme, readThemePreference } from './theme.js';
 
 function persistDeviceTheme(theme) {
@@ -88,6 +89,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 region.innerHTML = await response.text();
+                formatPostedTimes(region);
 
                 const state = region.querySelector('[data-archived]');
 
@@ -141,4 +143,5 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 
+formatPostedTimes();
 Alpine.start();

@@ -34,4 +34,8 @@ return [
     'images_not_allowed' => 'Images are not allowed.',
     'removed_user' => 'Removed user',
     'back' => 'Back',
+    'today' => 'today',
+    'yesterday' => 'yesterday',
+    'days_ago' => '{1} :count day ago|[2,*] :count days ago',
+    'days_ago_phrase' => ':days days ago',
 ];

@@ -45,6 +45,37 @@ it('asks guests to log in before a thread', function () {
         ->assertRedirect(route('login'));
 });
 
+it('shows thread dates as today, yesterday, or days ago', function () {
+    $reader = User::factory()->create();
+    $thread = Thread::factory()->create([
+        'body' => 'Gammal tråd',
+        'created_at' => now()->subDays(5),
+    ]);
+    Reply::factory()->for($thread)->create([
+        'body' => 'Gårdagens svar',
+        'created_at' => now()->subDay(),
+    ]);
+    $postedAt = $thread->created_at->timezone(config('app.timezone'))->format('Y-m-d H:i');
+    $daysAgo = trans_choice('threads.days_ago', 5, ['count' => 5]);
+
+    $this->actingAs($reader)
+        ->get(route('home'))
+        ->assertSuccessful()
+        ->assertSee(__('threads.yesterday'))
+        ->assertSee($daysAgo)
+        ->assertDontSee($postedAt)
+        ->assertSee('data-relative', false)
+        ->assertSee('data-posted-today="'.__('threads.today').'"', false)
+        ->assertSee('data-posted-days-ago="'.__('threads.days_ago_phrase').'"', false);
+
+    $this->actingAs($reader)
+        ->get(route('threads.show', $thread))
+        ->assertSuccessful()
+        ->assertSee($postedAt)
+        ->assertDontSee($daysAgo)
+        ->assertDontSee('data-relative', false);
+});
+
 it('lists threads on the threads page', function () {
     $user = User::factory()->create();
     Thread::factory()->create(['body' => 'En tråd i listan']);

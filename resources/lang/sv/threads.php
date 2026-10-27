@@ -34,4 +34,8 @@ return [
     'images_not_allowed' => 'Bilder är inte tillåtna.',
     'removed_user' => 'Borttagen användare',
     'back' => 'Tillbaka',
+    'today' => 'idag',
+    'yesterday' => 'igår',
+    'days_ago' => '{1} :count dag sedan|[2,*] :count dagar sedan',
+    'days_ago_phrase' => ':days dagar sedan',
 ];

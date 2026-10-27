@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-posted-today="{{ __('threads.today') }}" data-posted-yesterday="{{ __('threads.yesterday') }}" data-posted-days-ago="{{ __('threads.days_ago_phrase') }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
