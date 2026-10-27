@@ -2,6 +2,7 @@
 
 return [
     'threads' => 'Threads',
+    'show_threads' => 'Show threads',
     'new' => 'Write a message',
     'publish' => 'Publish',
     'empty' => 'No threads yet.',

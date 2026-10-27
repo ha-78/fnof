@@ -11,13 +11,19 @@ class HomeController extends Controller
     public function __invoke(Request $request, ThreadService $threads): View
     {
         $showingArchived = $request->boolean('archived');
-
-        return view('home', [
+        $data = [
             'user' => $request->user(),
             'threads' => $threads->list($showingArchived),
             'showingArchived' => $showingArchived,
             'listHeading' => __($showingArchived ? 'threads.archive' : 'threads.threads'),
             'emptyMessage' => __($showingArchived ? 'threads.empty_archive' : 'threads.empty'),
-        ]);
+            'version' => $threads->version(),
+        ];
+
+        if ($request->header('X-Fragment') === 'thread-list') {
+            return view('components.thread-list', $data);
+        }
+
+        return view('home', $data);
     }
 }

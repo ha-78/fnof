@@ -8,11 +8,23 @@ use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ThreadService
 {
+    private const VERSION_KEY = 'threads.version';
+
+    public function version(): int
+    {
+        if (Cache::missing(self::VERSION_KEY)) {
+            Cache::forever(self::VERSION_KEY, 1);
+        }
+
+        return (int) Cache::get(self::VERSION_KEY);
+    }
+
     public function list(bool $archived): LengthAwarePaginator
     {
         return Thread::query()
@@ -22,8 +34,6 @@ class ThreadService
                 fn (Builder $query): Builder => $query->archived(),
                 fn (Builder $query): Builder => $query->open(),
             )
-            ->latest()
-            ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
     }
@@ -34,14 +44,18 @@ class ThreadService
             throw new AuthorizationException;
         }
 
-        return $author->threads()->create([
+        $thread = $author->threads()->create([
             'body' => $body,
         ]);
+
+        $this->touchVersion();
+
+        return $thread;
     }
 
     public function reply(User $author, Thread $thread, string $body): Reply
     {
-        return DB::transaction(function () use ($author, $thread, $body): Reply {
+        $reply = DB::transaction(function () use ($author, $thread, $body): Reply {
             $locked = Thread::query()->lockForUpdate()->findOrFail($thread->getKey());
 
             if ($locked->isArchived()) {
@@ -59,6 +73,10 @@ class ThreadService
                 'body' => $body,
             ]);
         });
+
+        $this->touchVersion();
+
+        return $reply;
     }
 
     public function rename(User $actor, Thread $thread, ?string $title): void
@@ -69,6 +87,8 @@ class ThreadService
 
         $thread->title = $title;
         $thread->save();
+
+        $this->touchVersion();
     }
 
     public function archive(User $actor, Thread $thread): void
@@ -79,6 +99,8 @@ class ThreadService
 
         $thread->archived_at = now();
         $thread->save();
+
+        $this->touchVersion();
     }
 
     public function unarchive(User $actor, Thread $thread): void
@@ -89,6 +111,8 @@ class ThreadService
 
         $thread->archived_at = null;
         $thread->save();
+
+        $this->touchVersion();
     }
 
     public function delete(User $actor, Thread $thread): void
@@ -98,6 +122,8 @@ class ThreadService
         }
 
         $thread->delete();
+
+        $this->touchVersion();
     }
 
     public function deleteReply(User $actor, Reply $reply): void
@@ -107,5 +133,16 @@ class ThreadService
         }
 
         $reply->delete();
+
+        $this->touchVersion();
+    }
+
+    private function touchVersion(): void
+    {
+        if (Cache::missing(self::VERSION_KEY)) {
+            Cache::forever(self::VERSION_KEY, 0);
+        }
+
+        Cache::increment(self::VERSION_KEY);
     }
 }

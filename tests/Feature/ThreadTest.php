@@ -4,6 +4,7 @@ use App\Enums\Role;
 use App\Models\Reply;
 use App\Models\Thread;
 use App\Models\User;
+use App\Services\ThreadService;
 
 it('starts a thread from a message without a name', function () {
     $user = User::factory()->create();
@@ -31,8 +32,29 @@ it('asks guests to log in before a thread', function () {
     $this->post(route('threads.store'), ['body' => 'Hej'])
         ->assertRedirect(route('login'));
 
+    $this->get(route('threads.index'))
+        ->assertRedirect(route('login'));
+
     $this->get(route('threads.show', Thread::factory()->create()))
         ->assertRedirect(route('login'));
+
+    $this->get(route('home'), ['X-Fragment' => 'thread-list'])
+        ->assertRedirect(route('login'));
+
+    $this->getJson(route('threads.version'))
+        ->assertRedirect(route('login'));
+});
+
+it('lists threads on the threads page', function () {
+    $user = User::factory()->create();
+    Thread::factory()->create(['body' => 'En tråd i listan']);
+
+    $this->actingAs($user)
+        ->get(route('threads.index'))
+        ->assertSuccessful()
+        ->assertSee('En tråd i listan')
+        ->assertSee(__('threads.threads'))
+        ->assertSee(__('threads.archive'));
 });
 
 it('requires a message to start a thread', function () {
@@ -89,6 +111,134 @@ it('lists newer open threads first and keeps archived threads in the archive', f
         ->assertSuccessful()
         ->assertSee('Arkiverad tråd')
         ->assertDontSee('Nyare tråd');
+});
+
+it('lists a thread with a newer reply ahead of a newer thread', function () {
+    $reader = User::factory()->create();
+    $older = Thread::factory()->create([
+        'body' => 'Äldre tråd',
+        'created_at' => now()->subDays(2),
+    ]);
+    Thread::factory()->create([
+        'body' => 'Nyare tråd',
+        'created_at' => now()->subDay(),
+    ]);
+    $quiet = Thread::factory()->create([
+        'body' => 'Tyst tråd',
+        'created_at' => now()->subDays(3),
+    ]);
+    Reply::factory()->for($older)->create([
+        'body' => 'Nytt svar',
+        'created_at' => now(),
+    ]);
+    $removed = Reply::factory()->for($quiet)->create([
+        'body' => 'Borttaget svar',
+        'created_at' => now(),
+    ]);
+    $removed->delete();
+
+    $this->actingAs($reader)
+        ->get(route('home'))
+        ->assertSuccessful()
+        ->assertSeeInOrder(['Äldre tråd', 'Nyare tråd', 'Tyst tråd'])
+        ->assertDontSee('Borttaget svar');
+});
+
+it('serves a live thread list without the rest of the page', function () {
+    $reader = User::factory()->create();
+    $older = Thread::factory()->create([
+        'body' => 'Äldre tråd',
+        'created_at' => now()->subDays(2),
+    ]);
+    Thread::factory()->create([
+        'body' => 'Nyare tråd',
+        'created_at' => now()->subDay(),
+    ]);
+    Thread::factory()->archived()->create([
+        'body' => 'Arkiverad tråd',
+    ]);
+    Reply::factory()->for($older)->create(['created_at' => now()]);
+
+    $this->actingAs($reader)
+        ->get(route('home'), ['X-Fragment' => 'thread-list'])
+        ->assertSuccessful()
+        ->assertSeeInOrder(['Äldre tråd', 'Nyare tråd'])
+        ->assertDontSee('Arkiverad tråd')
+        ->assertDontSee(__('threads.publish'));
+
+    $this->actingAs($reader)
+        ->get(route('threads.index', ['archived' => 1]), ['X-Fragment' => 'thread-list'])
+        ->assertSuccessful()
+        ->assertSee('Arkiverad tråd')
+        ->assertDontSee('Nyare tråd')
+        ->assertDontSee(__('threads.publish'));
+});
+
+it('serves live replies without the rest of the thread page', function () {
+    $thread = Thread::factory()->create(['body' => 'Startmeddelandet']);
+    Reply::factory()->for($thread)->create(['body' => 'Första svaret']);
+    $removed = Reply::factory()->for($thread)->create(['body' => 'Borttaget svar']);
+    $removed->delete();
+
+    $this->actingAs($thread->user)
+        ->get(route('threads.show', $thread), ['X-Fragment' => 'replies'])
+        ->assertSuccessful()
+        ->assertSee('Första svaret')
+        ->assertDontSee('Borttaget svar')
+        ->assertDontSee('Startmeddelandet')
+        ->assertDontSee(__('threads.name'))
+        ->assertSee('data-archived="0"', false);
+
+    $thread->forceFill(['archived_at' => now()])->save();
+
+    $this->actingAs($thread->user)
+        ->get(route('threads.show', $thread), ['X-Fragment' => 'replies'])
+        ->assertSuccessful()
+        ->assertSee(__('threads.archived_notice'))
+        ->assertSee('data-archived="1"', false);
+});
+
+it('bumps one shared version when a thread changes', function () {
+    $thread = Thread::factory()->create();
+    $reply = Reply::factory()->for($thread)->create();
+    $before = app(ThreadService::class)->version();
+
+    $this->actingAs(User::factory()->create())
+        ->post(route('threads.replies.store', $thread), ['body' => 'Ett svar'])
+        ->assertRedirect();
+
+    expect(app(ThreadService::class)->version())->toBe($before + 1);
+
+    $this->actingAs($reply->user)
+        ->delete(route('replies.destroy', [$thread, $reply]))
+        ->assertRedirect();
+
+    expect(app(ThreadService::class)->version())->toBe($before + 2);
+
+    $this->actingAs(User::factory()->create())
+        ->getJson(route('threads.version'))
+        ->assertSuccessful()
+        ->assertJson(['version' => $before + 2]);
+});
+
+it('leaves the shared version unchanged when a reply is refused', function () {
+    $thread = Thread::factory()->archived()->create();
+    $before = app(ThreadService::class)->version();
+
+    $this->actingAs(User::factory()->create())
+        ->post(route('threads.replies.store', $thread), ['body' => 'För sent'])
+        ->assertSessionHasErrors('body');
+
+    expect(app(ThreadService::class)->version())->toBe($before);
+});
+
+it('misses a live thread that was deleted', function () {
+    $thread = Thread::factory()->create();
+    $thread->delete();
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('threads.show', $thread), ['X-Fragment' => 'replies'])
+        ->assertNotFound();
 });
 
 it('shows every reply under its thread on the home page', function () {
@@ -153,7 +303,8 @@ it('refuses a reply on an archived thread', function () {
         ->get(route('threads.show', $thread))
         ->assertSuccessful()
         ->assertSee(__('threads.archived_notice'))
-        ->assertDontSee(__('threads.send_reply'));
+        ->assertSee('data-archived="1"', false)
+        ->assertSee('x-cloak', false);
 });
 
 it('lets the author name a thread and clear the name', function () {

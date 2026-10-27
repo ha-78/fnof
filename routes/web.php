@@ -17,6 +17,8 @@ Route::get('/colors', ColorPaletteController::class)->name('colors');
 Route::middleware('auth')->group(function () {
     Route::get('/home', HomeController::class)->name('home');
 
+    Route::get('/threads', [ThreadController::class, 'index'])->name('threads.index');
+    Route::get('/threads/version', [ThreadController::class, 'version'])->name('threads.version');
     Route::post('/threads', [ThreadController::class, 'store'])->name('threads.store');
     Route::get('/threads/{thread}', [ThreadController::class, 'show'])->name('threads.show');
     Route::patch('/threads/{thread}', [ThreadController::class, 'update'])->name('threads.update');

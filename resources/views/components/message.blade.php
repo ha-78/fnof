@@ -1,23 +1,20 @@
-@props(['body', 'author' => null, 'postedAt', 'compact' => false, 'tone' => null, 'toneIndex' => 0])
+@props(['body', 'author' => null, 'authorId' => null, 'postedAt', 'compact' => false])
 
 @php
-    $resolvedTone = $tone ?? ['sun', 'mint', 'lilac', 'rose'][$toneIndex % 4];
-
-    $toneClass = match ($resolvedTone) {
-        'mint' => 'bg-mint',
-        'lilac' => 'bg-lilac',
-        'rose' => 'bg-rose',
-        'reply' => 'bg-reply',
-        default => 'bg-sun',
-    };
+    $writtenByCurrentUser = auth()->id() !== null && (int) $authorId === (int) auth()->id();
 @endphp
 
 <article {{ $attributes->class([
     'text-ink',
-    $toneClass,
+    'bg-message-mine' => $writtenByCurrentUser,
+    'bg-message-other' => ! $writtenByCurrentUser,
     'rounded-3xl p-4' => ! $compact,
     'rounded-2xl px-3 py-2' => $compact,
 ]) }}>
+    @if ($slot->isNotEmpty())
+        {{ $slot }}
+    @endif
+
     <p @class(['text-muted', 'text-sm' => ! $compact, 'text-xs' => $compact])>
         {{ $author ?? __('threads.removed_user') }}
         <span aria-hidden="true"> · </span>

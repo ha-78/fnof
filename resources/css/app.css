@@ -51,6 +51,8 @@
     --aside: var(--color-a-2);
     --row: var(--color-c-1);
     --row-alt: var(--color-a-1);
+    --message-mine: var(--color-a-2);
+    --message-other: var(--color-d-2);
 }
 
 html[data-theme='dark'] {
@@ -77,6 +79,8 @@ html[data-theme='dark'] {
     --aside: var(--color-b-5);
     --row: var(--color-d-4);
     --row-alt: var(--color-a-5);
+    --message-mine: var(--color-a-4);
+    --message-other: var(--color-d-4);
 }
 
 @theme inline {
@@ -104,9 +108,15 @@ html[data-theme='dark'] {
     --color-aside: var(--aside);
     --color-row: var(--row);
     --color-row-alt: var(--row-alt);
+    --color-message-mine: var(--message-mine);
+    --color-message-other: var(--message-other);
 }
 
 @layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
     :focus-visible {
         outline: 2px solid var(--ink);
         outline-offset: 2px;

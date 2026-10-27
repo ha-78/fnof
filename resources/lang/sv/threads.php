@@ -2,6 +2,7 @@
 
 return [
     'threads' => 'Trådar',
+    'show_threads' => 'Visa trådar',
     'new' => 'Skriv ett meddelande',
     'publish' => 'Publicera',
     'empty' => 'Inga trådar ännu.',

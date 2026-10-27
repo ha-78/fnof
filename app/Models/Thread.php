@@ -35,6 +35,29 @@ class Thread extends Model
     }
 
     /**
+     * List threads by newest activity: the thread's creation time, or its latest reply.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('recentActivity', function (Builder $builder): void {
+            $reply = new Reply;
+            $createdAt = $builder->qualifyColumn('created_at');
+            $latestReplyAt = Reply::query()
+                ->select($reply->qualifyColumn('created_at'))
+                ->whereColumn($reply->qualifyColumn('thread_id'), $builder->qualifyColumn('id'))
+                ->latest($reply->qualifyColumn('created_at'))
+                ->limit(1);
+
+            $builder
+                ->orderByRaw(
+                    'greatest('.$createdAt.', coalesce(('.$latestReplyAt->toSql().'), '.$createdAt.')) desc',
+                    $latestReplyAt->getBindings(),
+                )
+                ->orderByDesc($builder->qualifyColumn('id'));
+        });
+    }
+
+    /**
      * @param  Builder<Thread>  $query
      * @return Builder<Thread>
      */
