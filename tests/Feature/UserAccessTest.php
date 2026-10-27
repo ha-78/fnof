@@ -1,22 +1,27 @@
 <?php
 
-use App\Actions\Fortify\CreateNewUser;
 use App\Enums\Role;
 use App\Models\User;
 use App\Models\UserFeature;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-it('registers a reader and ignores a submitted role', function () {
-    $user = app(CreateNewUser::class)->create([
+it('does not offer public registration', function () {
+    $this->get('/')
+        ->assertSuccessful()
+        ->assertDontSee('/register', false);
+
+    $this->get('/register')->assertNotFound();
+
+    $this->post('/register', [
         'name' => 'Ny läsare',
         'email' => 'reader@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
         'role' => Role::God->value,
-    ]);
+    ])->assertNotFound();
 
-    expect($user->role)->toBe(Role::Reader);
+    expect(User::query()->where('email', 'reader@example.com')->exists())->toBeFalse();
 });
 
 it('creates a god user from the terminal', function () {
