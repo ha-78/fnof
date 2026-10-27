@@ -52,7 +52,7 @@ export function formatPostedTimes(root = document) {
     const copy = labels();
     const canPhrase = copy.today !== '' && copy.yesterday !== '' && copy.daysAgo !== '';
 
-    root.querySelectorAll('time[datetime]').forEach((time) => {
+    root.querySelectorAll('time[data-posted]').forEach((time) => {
         const date = new Date(time.dateTime);
 
         if (Number.isNaN(date.getTime())) {

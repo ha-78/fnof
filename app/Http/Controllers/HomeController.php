@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CalendarDate;
 use App\Services\ThreadService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -24,6 +25,6 @@ class HomeController extends Controller
             return view('components.thread-list', $data);
         }
 
-        return view('home', $data);
+        return view('home', [...$data, ...CalendarDate::forHome()]);
     }
 }

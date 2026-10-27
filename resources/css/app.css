@@ -53,6 +53,8 @@
     --row-alt: var(--color-a-1);
     --message-mine: var(--color-a-2);
     --message-other: var(--color-d-2);
+    --calendar: var(--color-b-2);
+    --calendar-ink: var(--color-b-4);
 }
 
 html[data-theme='dark'] {
@@ -81,6 +83,8 @@ html[data-theme='dark'] {
     --row-alt: var(--color-a-5);
     --message-mine: var(--color-a-4);
     --message-other: var(--color-d-4);
+    --calendar: var(--color-b-4);
+    --calendar-ink: var(--color-b-2);
 }
 
 @theme inline {
@@ -110,6 +114,8 @@ html[data-theme='dark'] {
     --color-row-alt: var(--row-alt);
     --color-message-mine: var(--message-mine);
     --color-message-other: var(--message-other);
+    --color-calendar: var(--calendar);
+    --color-calendar-ink: var(--calendar-ink);
 }
 
 @layer base {
