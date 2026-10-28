@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\Role;
+use App\Models\Context;
+use App\Models\ContextUser;
 use App\Models\User;
 use App\Models\UserFeature;
 use Illuminate\Support\Facades\DB;
@@ -32,10 +34,34 @@ it('creates a god user from the terminal', function () {
     ])->assertSuccessful();
 
     $user = User::query()->where('email', 'god@example.com')->first();
+    $context = Context::query()->sole();
+    $membership = $context->memberships()->sole();
 
     expect($user)->not->toBeNull()
-        ->and($user->role)->toBe(Role::God)
+        ->and($context->name)->toBe('Första God')
+        ->and($membership->user_id)->toBe($user->id)
+        ->and($membership->role)->toBe(Role::God)
         ->and(Hash::check('password', $user->password))->toBeTrue();
+});
+
+it('adds another god to the existing context', function () {
+    $this->artisan('users:create-god', [
+        '--name' => 'Första God',
+        '--email' => 'god@example.com',
+        '--password' => 'password',
+    ])->assertSuccessful();
+
+    $this->artisan('users:create-god', [
+        '--name' => 'Andra God',
+        '--email' => 'other@example.com',
+        '--password' => 'password',
+    ])->assertSuccessful();
+
+    $memberships = Context::query()->sole()->memberships;
+
+    expect(Context::query()->count())->toBe(1)
+        ->and($memberships)->toHaveCount(2)
+        ->and($memberships->every(fn (ContextUser $membership): bool => $membership->role === Role::God))->toBeTrue();
 });
 
 it('stores a pasted god password without terminal paste markers', function () {

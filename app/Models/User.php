@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -20,9 +21,23 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $attributes = [
-        'role' => 'reader',
-    ];
+    /**
+     * @return HasMany<ContextUser, $this>
+     */
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(ContextUser::class);
+    }
+
+    /**
+     * @return BelongsToMany<Context, $this>
+     */
+    public function contexts(): BelongsToMany
+    {
+        return $this->belongsToMany(Context::class)
+            ->withPivot(['id', 'role'])
+            ->withTimestamps();
+    }
 
     /**
      * @return HasMany<UserFeature, $this>
@@ -81,7 +96,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'role' => Role::class,
         ];
     }
 }

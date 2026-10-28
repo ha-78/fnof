@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('threads', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('context_id')->constrained();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->text('body');
             $table->string('title')->nullable();

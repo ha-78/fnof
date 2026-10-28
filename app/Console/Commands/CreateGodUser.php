@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Enums\Role;
+use App\Models\Context;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -50,13 +52,30 @@ class CreateGodUser extends Command
             return self::FAILURE;
         }
 
-        $user = new User([
-            'name' => $name,
-            'email' => $email,
-            'password' => $password,
-        ]);
-        $user->role = Role::God;
-        $user->save();
+        $user = DB::transaction(function () use ($name, $email, $password): User {
+            $user = new User([
+                'name' => $name,
+                'email' => $email,
+                'password' => $password,
+            ]);
+            $user->save();
+
+            $context = Context::query()->orderBy('id')->first();
+
+            if ($context === null) {
+                $context = new Context([
+                    'name' => $user->name,
+                ]);
+                $context->save();
+            }
+
+            $context->memberships()->create([
+                'user_id' => $user->id,
+                'role' => Role::God,
+            ]);
+
+            return $user;
+        });
 
         $this->info(__('users.god_created', ['email' => $user->email]));
 

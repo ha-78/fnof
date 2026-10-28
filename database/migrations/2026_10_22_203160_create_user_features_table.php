@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('user_features', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('context_user_id')->constrained('context_user')->cascadeOnDelete();
             $table->string('feature');
             $table->boolean('granted');
             $table->timestamps();
 
-            $table->unique(['user_id', 'feature']);
+            $table->unique(['context_user_id', 'feature']);
         });
     }
 
