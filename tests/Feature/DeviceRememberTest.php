@@ -150,3 +150,64 @@ it('removes only the device that logged out', function () {
     expect(UserRememberDevice::query()->whereKey($current->id)->exists())->toBeFalse()
         ->and(UserRememberDevice::query()->whereKey($other->id)->exists())->toBeTrue();
 });
+
+it('lists signed-in devices on the account page and marks this one', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+    $plainToken = Str::random(64);
+    $cookieName = app(DeviceRememberService::class)->cookieName();
+
+    $current = $user->rememberDevices()->create([
+        'token' => hash('sha256', $plainToken),
+        'device_name' => 'Chrome on Mac',
+        'last_used_at' => now()->subHour(),
+        'expires_at' => now()->addDay(),
+    ]);
+
+    $user->rememberDevices()->create([
+        'token' => hash('sha256', Str::random(64)),
+        'device_name' => 'Safari on iPhone',
+        'last_used_at' => now()->subDay(),
+        'expires_at' => now()->addDay(),
+    ]);
+
+    $user->rememberDevices()->create([
+        'token' => hash('sha256', Str::random(64)),
+        'device_name' => 'Expired phone',
+        'last_used_at' => now()->subDays(3),
+        'expires_at' => now()->subMinute(),
+    ]);
+
+    $other->rememberDevices()->create([
+        'token' => hash('sha256', Str::random(64)),
+        'device_name' => 'Someone elses laptop',
+        'last_used_at' => now(),
+        'expires_at' => now()->addDay(),
+    ]);
+
+    $this->actingAs($user)
+        ->withCookie($cookieName, $current->id.'|'.$plainToken)
+        ->get(route('account'))
+        ->assertSuccessful()
+        ->assertSee('data-table', false)
+        ->assertSeeInOrder([
+            __('users.sessions'),
+            __('users.devices.name'),
+            __('users.devices.last_used_at'),
+            'Chrome on Mac',
+            __('users.devices.current'),
+            $current->last_used_at->timezone(config('app.timezone'))->format('Y-m-d H:i'),
+            'Safari on iPhone',
+        ])
+        ->assertDontSee('Expired phone')
+        ->assertDontSee('Someone elses laptop')
+        ->assertSee(__('users.log_out_hint'));
+});
+
+it('says when no devices are signed in', function () {
+    $this->actingAs(User::factory()->create())
+        ->get(route('account'))
+        ->assertSuccessful()
+        ->assertSee(__('users.devices.empty'))
+        ->assertDontSee(__('users.devices.current'));
+});

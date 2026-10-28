@@ -87,6 +87,14 @@ html[data-theme='dark'] {
     --calendar-ink: var(--color-b-2);
 }
 
+.data-table {
+    background-color: var(--color-d-2);
+}
+
+html[data-theme='dark'] .data-table {
+    background-color: var(--color-d-4);
+}
+
 @theme inline {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';

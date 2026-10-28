@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/device/theme', [DeviceRememberController::class, 'updateTheme'])->name('device.theme');
 
+    Route::get('/account', [UserController::class, 'account'])->name('account');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role.update');

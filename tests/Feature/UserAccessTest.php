@@ -141,24 +141,42 @@ it('shows each person their account, and the user list only to an admin', functi
     $reader = User::factory()->create();
 
     $this->actingAs($admin)
-        ->get(route('users.index'))
+        ->get(route('account'))
         ->assertSuccessful()
         ->assertSee($admin->email)
-        ->assertSee($reader->email)
         ->assertSee(__('users.log_out'))
-        ->assertSee(__('users.manage'));
+        ->assertSee(route('users.index'), false)
+        ->assertDontSee(__('users.role').':', false)
+        ->assertSeeInOrder([
+            __('themes.label'),
+            __('themes.light'),
+            __('themes.dark'),
+            __('themes.default'),
+        ]);
+
+    $this->actingAs($admin)
+        ->get(route('users.index'))
+        ->assertSuccessful()
+        ->assertSee($reader->email)
+        ->assertSee(__('users.manage'))
+        ->assertDontSee(__('users.log_out'))
+        ->assertSee('data-table', false);
 
     $this->actingAs($reader)
-        ->get(route('users.index'))
+        ->get(route('account'))
         ->assertSuccessful()
         ->assertSee($reader->name)
         ->assertSee($reader->email)
         ->assertSee(__('users.log_out'))
-        ->assertDontSee($admin->email)
-        ->assertDontSee(__('users.manage'));
+        ->assertDontSee(route('users.index'), false);
+
+    $this->actingAs($reader)
+        ->get(route('users.index'))
+        ->assertForbidden();
 });
 
 it('sends guests to login', function () {
+    $this->get(route('account'))->assertRedirect(route('login'));
     $this->get(route('users.index'))->assertRedirect(route('login'));
 });
 
