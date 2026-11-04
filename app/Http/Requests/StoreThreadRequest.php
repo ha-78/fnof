@@ -29,6 +29,7 @@ class StoreThreadRequest extends FormRequest
     {
         return [
             'body' => ['required', 'string', 'max:10000', new NoImages],
+            'return_to' => ['sometimes', 'in:home'],
         ];
     }
 }

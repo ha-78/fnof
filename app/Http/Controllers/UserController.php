@@ -6,8 +6,10 @@ use App\Enums\Feature;
 use App\Enums\Role;
 use App\Http\Requests\UpdateUserFeaturesRequest;
 use App\Http\Requests\UpdateUserRoleRequest;
+use App\Models\Context;
 use App\Models\User;
 use App\Services\DeviceRememberService;
+use App\Services\InviteService;
 use App\Services\UserAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,12 +35,25 @@ class UserController extends Controller
         ]);
     }
 
-    public function index(): View
+    public function index(Request $request, InviteService $invites): View
     {
         Gate::authorize('viewAny', User::class);
 
+        $context = Context::query()->orderBy('id')->first();
+        $actor = $request->user();
+        $canInvite = $actor instanceof User && $invites->canInvite($actor, $context);
+
+        if ($canInvite) {
+            $invites->pruneExpired($context);
+        }
+
         return view('users.index', [
-            'users' => User::query()->latest('id')->paginate(20),
+            'context' => $context,
+            'users' => User::query()->with('memberships')->latest('id')->paginate(20),
+            'canInvite' => $canInvite,
+            'pendingInvites' => $canInvite ? $invites->pending($context) : collect(),
+            'inviteRoles' => array_reverse(Role::cases()),
+            'defaultInviteRole' => Role::Reader,
         ]);
     }
 
@@ -49,7 +64,7 @@ class UserController extends Controller
         $roles = $access->assignableRoles($request->user(), $user);
 
         return view('users.show', [
-            'user' => $user->load('featureOverrides'),
+            'user' => $user->load(['featureOverrides', 'memberships']),
             'assignableRoles' => $roles,
             'canChangeRole' => collect($roles)->contains(
                 fn (Role $role): bool => $role !== $user->role,

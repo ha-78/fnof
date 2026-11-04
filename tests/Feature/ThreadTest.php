@@ -19,13 +19,32 @@ it('starts a thread from a message without a name', function () {
 
     expect($thread->title)->toBeNull()
         ->and($thread->body)->toBe('En kort tråd')
-        ->and($thread->user_id)->toBe($user->id);
+        ->and($thread->user_id)->toBe($user->id)
+        ->and($thread->context_id)->toBe($user->currentContextId());
 
     $this->actingAs($user)
         ->get(route('home'))
         ->assertSuccessful()
         ->assertSee('En kort tråd')
         ->assertSee($user->name);
+});
+
+it('returns to the start page after creating a thread there', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('threads.store'), [
+            'body' => 'En kort tråd',
+            'return_to' => 'home',
+        ])
+        ->assertRedirect(route('home'))
+        ->assertSessionHas('status', __('threads.created'));
+
+    $this->actingAs($user)
+        ->get(route('home'))
+        ->assertSuccessful()
+        ->assertSee('En kort tråd')
+        ->assertSee(__('threads.created'));
 });
 
 it('asks guests to log in before a thread', function () {

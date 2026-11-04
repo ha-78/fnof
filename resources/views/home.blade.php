@@ -9,6 +9,7 @@
         <div class="min-w-0">
             <form method="POST" action="{{ route('threads.store') }}" class="space-y-3 rounded-3xl bg-form p-5">
                 @csrf
+                <input type="hidden" name="return_to" value="home">
 
                 <label class="block text-sm font-medium" for="body">{{ __('threads.new') }}</label>
                 <textarea id="body" name="body" rows="4" required maxlength="10000" class="w-full rounded-2xl bg-field px-3 py-2 text-sm text-ink">{{ old('body') }}</textarea>
@@ -26,7 +27,7 @@
                     <a href="{{ route('threads.index') }}" class="text-sm text-ink hover:underline">{{ __('threads.show_threads') }}</a>
                 </div>
 
-                <div x-ref="region">
+                <div x-ref="region" class="home-threads">
                     <x-thread-list :threads="$threads" :empty-message="$emptyMessage" />
                 </div>
             </section>

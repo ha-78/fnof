@@ -95,6 +95,14 @@ html[data-theme='dark'] .data-table {
     background-color: var(--color-d-4);
 }
 
+.home-threads > p {
+    background-color: var(--color-a-2);
+}
+
+html[data-theme='dark'] .home-threads > p {
+    background-color: var(--color-a-4);
+}
+
 @theme inline {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';

@@ -45,6 +45,7 @@ class ThreadService
         }
 
         $thread = $author->threads()->create([
+            'context_id' => $author->currentContextId(),
             'body' => $body,
         ]);
 

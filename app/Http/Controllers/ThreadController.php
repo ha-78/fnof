@@ -39,7 +39,11 @@ class ThreadController extends Controller
     {
         $thread = $threads->open($request->user(), $request->validated('body'));
 
-        return to_route('threads.show', $thread)->with('status', __('threads.created'));
+        $redirect = $request->validated('return_to') === 'home'
+            ? to_route('home')
+            : to_route('threads.show', $thread);
+
+        return $redirect->with('status', __('threads.created'));
     }
 
     public function show(Request $request, Thread $thread, ThreadService $threads): View

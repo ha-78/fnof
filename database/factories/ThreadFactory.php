@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Context;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -17,6 +18,17 @@ class ThreadFactory extends Factory
     public function definition(): array
     {
         return [
+            'context_id' => function (): int {
+                $id = Context::query()->orderBy('id')->value('id');
+
+                if ($id !== null) {
+                    return (int) $id;
+                }
+
+                return Context::query()->create([
+                    'name' => 'Familjen',
+                ])->id;
+            },
             'user_id' => User::factory(),
             'body' => fake()->paragraph(),
             'title' => null,

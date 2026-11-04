@@ -184,6 +184,7 @@ it('shows each person their account, and the user list only to an admin', functi
         ->get(route('users.index'))
         ->assertSuccessful()
         ->assertSee($reader->email)
+        ->assertSee(__('users.context'))
         ->assertSee(__('users.manage'))
         ->assertDontSee(__('users.log_out'))
         ->assertSee('data-table', false);
@@ -202,8 +203,54 @@ it('shows each person their account, and the user list only to an admin', functi
 });
 
 it('sends guests to login', function () {
+    $context = Context::query()->create(['name' => 'Familjen']);
+
     $this->get(route('account'))->assertRedirect(route('login'));
     $this->get(route('users.index'))->assertRedirect(route('login'));
+    $this->patch(route('contexts.update', $context), ['name' => 'Namn'])->assertRedirect(route('login'));
+});
+
+it('lets an admin rename the context from the users page', function () {
+    $admin = User::factory()->withRole(Role::Admin)->create();
+    $context = Context::query()->sole();
+
+    $this->actingAs($admin)
+        ->get(route('users.index'))
+        ->assertSuccessful()
+        ->assertSee($context->name);
+
+    $this->actingAs($admin)
+        ->patch(route('contexts.update', $context), ['name' => '  Familjen  '])
+        ->assertRedirect(route('users.index'))
+        ->assertSessionHas('status', __('users.context_updated'));
+
+    expect($context->refresh()->name)->toBe('Familjen');
+});
+
+it('rejects an empty context name', function () {
+    $admin = User::factory()->withRole(Role::Admin)->create();
+    $context = Context::query()->sole();
+
+    $this->actingAs($admin)
+        ->from(route('users.index'))
+        ->patch(route('contexts.update', $context), ['name' => '   '])
+        ->assertRedirect(route('users.index'))
+        ->assertSessionHasErrors('name');
+
+    expect($context->refresh()->name)->toBe($admin->name);
+});
+
+it('stops a reader from renaming the context', function () {
+    User::factory()->withRole(Role::Admin)->create();
+    $reader = User::factory()->withRole(Role::Reader)->create();
+    $context = Context::query()->sole();
+    $name = $context->name;
+
+    $this->actingAs($reader)
+        ->patch(route('contexts.update', $context), ['name' => 'Annat namn'])
+        ->assertForbidden();
+
+    expect($context->refresh()->name)->toBe($name);
 });
 
 it('lets an admin save permissions for a reader', function () {

@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\AcceptInviteController;
+use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\ColorPaletteController;
+use App\Http\Controllers\ContextController;
 use App\Http\Controllers\DeviceRememberController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InviteController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\UserController;
@@ -14,8 +18,20 @@ Route::get('/', function () {
 
 Route::get('/colors', ColorPaletteController::class)->name('colors');
 
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/invites/{token}', [AcceptInviteController::class, 'create'])
+        ->name('invites.accept')
+        ->where('token', '[A-Za-z0-9]{64}');
+    Route::post('/invites/{token}', [AcceptInviteController::class, 'store'])
+        ->name('invites.accept.store')
+        ->where('token', '[A-Za-z0-9]{64}');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/home', HomeController::class)->name('home');
+
+    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
+    Route::post('/bookmarks', [BookmarkController::class, 'store'])->name('bookmarks.store');
 
     Route::get('/threads', [ThreadController::class, 'index'])->name('threads.index');
     Route::get('/threads/version', [ThreadController::class, 'version'])->name('threads.version');
@@ -34,6 +50,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/account', [UserController::class, 'account'])->name('account');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/invites', [InviteController::class, 'store'])->name('invites.store');
+    Route::delete('/invites/{invite}', [InviteController::class, 'destroy'])->name('invites.destroy');
+    Route::patch('/contexts/{context}', [ContextController::class, 'update'])->name('contexts.update');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role.update');
     Route::put('/users/{user}/features', [UserController::class, 'updateFeatures'])->name('users.features.update');

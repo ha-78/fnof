@@ -16,4 +16,20 @@ class Context extends Model
     {
         return $this->hasMany(ContextUser::class);
     }
+
+    /**
+     * @return HasMany<Invite, $this>
+     */
+    public function invites(): HasMany
+    {
+        return $this->hasMany(Invite::class);
+    }
+
+    /**
+     * @return HasMany<Bookmark, $this>
+     */
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(Bookmark::class);
+    }
 }

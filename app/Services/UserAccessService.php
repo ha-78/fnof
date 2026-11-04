@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\Feature;
 use App\Enums\Role;
+use App\Models\ContextUser;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
@@ -78,9 +79,9 @@ class UserAccessService
 
     private function anotherGodExists(User $subject): bool
     {
-        return User::query()
+        return ContextUser::query()
             ->where('role', Role::God)
-            ->whereKeyNot($subject->getKey())
+            ->where('user_id', '!=', $subject->getKey())
             ->orderBy('id')
             ->lockForUpdate()
             ->first() !== null;

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-#[Fillable(['user_id', 'body', 'title', 'archived_at'])]
+#[Fillable(['context_id', 'user_id', 'body', 'title', 'archived_at'])]
 class Thread extends Model
 {
     /** @use HasFactory<ThreadFactory> */
@@ -73,6 +73,14 @@ class Thread extends Model
     public function scopeArchived(Builder $query): Builder
     {
         return $query->whereNotNull('archived_at');
+    }
+
+    /**
+     * @return BelongsTo<Context, $this>
+     */
+    public function context(): BelongsTo
+    {
+        return $this->belongsTo(Context::class);
     }
 
     /**

@@ -132,6 +132,29 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 
+    Alpine.data('copyText', () => ({
+        copied: false,
+        timer: null,
+
+        destroy() {
+            window.clearTimeout(this.timer);
+        },
+
+        copy(value) {
+            if (! navigator.clipboard?.writeText) {
+                return;
+            }
+
+            navigator.clipboard.writeText(value).then(() => {
+                this.copied = true;
+                window.clearTimeout(this.timer);
+                this.timer = window.setTimeout(() => {
+                    this.copied = false;
+                }, 2000);
+            }).catch(() => {});
+        },
+    }));
+
     Alpine.data('themeToggle', () => ({
         current: readThemePreference(),
 
