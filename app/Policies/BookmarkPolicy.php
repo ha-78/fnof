@@ -41,6 +41,7 @@ class BookmarkPolicy
 
     public function delete(User $actor, Bookmark $bookmark): bool
     {
-        return $this->update($actor, $bookmark);
+        return (int) $actor->getKey() === (int) $bookmark->user_id
+            && (int) $bookmark->context_id === $actor->currentContextId();
     }
 }

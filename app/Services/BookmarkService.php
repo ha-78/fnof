@@ -35,4 +35,13 @@ class BookmarkService
             'is_public' => $isPublic,
         ]);
     }
+
+    public function delete(User $actor, Bookmark $bookmark): void
+    {
+        if (! $actor->can('delete', $bookmark)) {
+            throw new AuthorizationException;
+        }
+
+        $bookmark->delete();
+    }
 }

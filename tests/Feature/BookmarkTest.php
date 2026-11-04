@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Role;
 use App\Models\Bookmark;
 use App\Models\Context;
 use App\Models\User;
@@ -12,6 +13,9 @@ it('asks guests to log in before bookmarks', function () {
         'name' => 'Recept',
         'url' => 'https://example.com/recept',
     ])->assertRedirect(route('login'));
+
+    $this->delete(route('bookmarks.destroy', Bookmark::factory()->create()))
+        ->assertRedirect(route('login'));
 });
 
 it('lists a bookmark by name and full url', function () {
@@ -41,6 +45,8 @@ it('lists a bookmark by name and full url', function () {
         ->assertSee($createdAt->toDateString())
         ->assertDontSee('15:45')
         ->assertDontSee('m8.5 12 2.25 2.25 4.75-5', false)
+        ->assertSee('m14.74 9-.346 9', false)
+        ->assertSee(__('bookmarks.confirm_delete'), false)
         ->assertSee('href="https://example.com/apelsin"', false)
         ->assertSee('href="https://example.com/zebra"', false)
         ->assertSee('https://example.com/apelsin')
@@ -92,7 +98,9 @@ it('hides private bookmarks and bookmarks from another context', function () {
         ->assertDontSee('Hemlig')
         ->assertDontSee('https://example.com/secret')
         ->assertDontSee('Annanstans')
-        ->assertDontSee('https://example.com/elsewhere');
+        ->assertDontSee('https://example.com/elsewhere')
+        ->assertDontSee('m14.74 9-.346 9', false)
+        ->assertDontSee(__('bookmarks.confirm_delete'), false);
 });
 
 it('saves a private bookmark for the signed-in user', function () {
@@ -145,4 +153,47 @@ it('requires a name and an http url', function () {
         ->assertSessionHasErrors(['name', 'url']);
 
     expect(Bookmark::query()->count())->toBe(0);
+});
+
+it('deletes a bookmark the signed-in user created', function () {
+    $user = User::factory()->create();
+    $bookmark = Bookmark::factory()->for($user)->create([
+        'name' => 'Recept',
+        'url' => 'https://example.com/recept',
+        'context_id' => $user->currentContextId(),
+    ]);
+
+    $this->actingAs($user)
+        ->delete(route('bookmarks.destroy', $bookmark))
+        ->assertRedirect(route('bookmarks.index'))
+        ->assertSessionHas('status', __('bookmarks.deleted'));
+
+    expect(Bookmark::query()->find($bookmark->id))->toBeNull();
+
+    $this->actingAs($user)
+        ->get(route('bookmarks.index'))
+        ->assertSuccessful()
+        ->assertSee(__('bookmarks.deleted'))
+        ->assertDontSee('Recept');
+});
+
+it('refuses to delete a bookmark someone else created', function () {
+    $owner = User::factory()->create();
+    $reader = User::factory()->create();
+    $admin = User::factory()->withRole(Role::Admin)->create();
+    $bookmark = Bookmark::factory()->for($owner)->public()->create([
+        'context_id' => $owner->currentContextId(),
+        'name' => 'Delad',
+        'url' => 'https://example.com/shared',
+    ]);
+
+    $this->actingAs($reader)
+        ->delete(route('bookmarks.destroy', $bookmark))
+        ->assertForbidden();
+
+    $this->actingAs($admin)
+        ->delete(route('bookmarks.destroy', $bookmark))
+        ->assertForbidden();
+
+    expect(Bookmark::query()->find($bookmark->id))->not->toBeNull();
 });

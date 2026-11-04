@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DeleteBookmarkRequest;
 use App\Http\Requests\StoreBookmarkRequest;
 use App\Models\Bookmark;
 use App\Services\BookmarkService;
@@ -31,5 +32,12 @@ class BookmarkController extends Controller
         );
 
         return to_route('bookmarks.index')->with('status', __('bookmarks.created'));
+    }
+
+    public function destroy(DeleteBookmarkRequest $request, Bookmark $bookmark, BookmarkService $bookmarks): RedirectResponse
+    {
+        $bookmarks->delete($request->user(), $bookmark);
+
+        return to_route('bookmarks.index')->with('status', __('bookmarks.deleted'));
     }
 }
