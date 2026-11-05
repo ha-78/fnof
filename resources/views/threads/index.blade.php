@@ -10,7 +10,7 @@
     </div>
 
     @unless ($showingArchived)
-        <form method="POST" action="{{ route('threads.store') }}" class="mt-8 space-y-3 rounded-3xl bg-form p-5">
+        <form method="POST" action="{{ route('threads.store') }}" class="threads-form mt-8 space-y-3 rounded-3xl p-5">
             @csrf
 
             <label class="block text-sm font-medium" for="body">{{ __('threads.new') }}</label>
@@ -20,7 +20,9 @@
                 <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
             @enderror
 
-            <button type="submit" class="rounded-full bg-button px-4 py-2 text-sm font-medium text-button-ink hover:opacity-90">{{ __('threads.publish') }}</button>
+            <div class="flex justify-end">
+                <button type="submit" class="rounded-full bg-[var(--color-a-5)] px-4 py-2 text-sm font-medium text-[var(--color-a-1)] hover:opacity-90">{{ __('threads.publish') }}</button>
+            </div>
         </form>
     @endunless
 

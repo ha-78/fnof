@@ -23,7 +23,7 @@
                     <x-replies :thread="$thread" />
                 </div>
 
-                <form method="POST" action="{{ route('threads.replies.store', $thread) }}" class="mt-3 ml-5 space-y-2 rounded-3xl bg-form p-3" x-show="!archived" @if ($thread->isArchived()) x-cloak @endif>
+                <form method="POST" action="{{ route('threads.replies.store', $thread) }}" class="threads-form mt-3 ml-5 space-y-2 rounded-3xl p-3" x-show="!archived" @if ($thread->isArchived()) x-cloak @endif>
                     @csrf
 
                     <label class="block text-xs text-muted" for="reply-body">{{ __('threads.reply') }}</label>
@@ -33,7 +33,9 @@
                         <p class="rounded-2xl bg-danger-soft px-3 py-2 text-xs text-danger">{{ $message }}</p>
                     @enderror
 
-                    <button type="submit" class="rounded-full bg-button px-3 py-1 text-xs font-medium text-button-ink hover:opacity-90">{{ __('threads.send_reply') }}</button>
+                    <div class="flex justify-end">
+                        <button type="submit" class="rounded-full bg-[var(--color-a-5)] px-3 py-1 text-xs font-medium text-[var(--color-a-1)] hover:opacity-90">{{ __('threads.send_reply') }}</button>
+                    </div>
                 </form>
             </div>
 

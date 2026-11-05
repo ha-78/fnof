@@ -189,7 +189,9 @@ it('lists signed-in devices on the account page and marks this one', function ()
         ->withCookie($cookieName, $current->id.'|'.$plainToken)
         ->get(route('account'))
         ->assertSuccessful()
-        ->assertSee('data-table', false)
+        ->assertSee('account-surface', false)
+        ->assertSee('account-table', false)
+        ->assertSee('bg-[var(--color-g-5)]', false)
         ->assertSeeInOrder([
             __('users.sessions'),
             __('users.devices.name'),

@@ -12,7 +12,7 @@
     <h2 class="mt-10 text-xl font-semibold tracking-tight">{{ __('lists.items') }}</h2>
 
     @if ($lists->isNotEmpty())
-        <form method="POST" action="{{ route('lists.items.store') }}" class="mt-8 space-y-3 rounded-3xl bg-form p-5">
+        <form method="POST" action="{{ route('lists.items.store') }}" class="lists-form mt-8 space-y-3 rounded-3xl p-5">
             @csrf
 
             <label class="block text-sm font-medium" for="item-list">{{ __('lists.list') }}</label>
@@ -47,20 +47,22 @@
                 <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
             @enderror
 
-            <label class="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="item_is_public" value="1" @checked(old('item_is_public', true))>
-                {{ __('lists.is_public') }}
-            </label>
+            <div class="flex flex-col items-end gap-3 md:flex-row md:items-center md:justify-between">
+                <label class="flex items-center gap-2 self-start text-sm">
+                    <input type="checkbox" name="item_is_public" value="1" @checked(old('item_is_public', true))>
+                    {{ __('lists.is_public') }}
+                </label>
 
-            <button type="submit" class="rounded-full bg-button px-4 py-2 text-sm font-medium text-button-ink hover:opacity-90">{{ __('lists.save') }}</button>
+                <button type="submit" class="rounded-full bg-[var(--color-c-5)] px-4 py-2 text-sm font-medium text-[var(--color-c-1)] hover:opacity-90">{{ __('lists.save') }}</button>
+            </div>
         </form>
     @endif
 
     @if ($items->isEmpty())
-        <p class="mt-8 rounded-3xl bg-lilac px-4 py-3 text-sm text-ink">{{ __('lists.items_empty') }}</p>
+        <p class="lists-surface mt-8 rounded-3xl px-4 py-3 text-sm text-ink">{{ __('lists.items_empty') }}</p>
     @else
-        <div class="data-table mt-8 overflow-x-auto rounded-3xl">
-            <table class="w-full text-left text-sm">
+        <div class="lists-surface mt-8 overflow-x-auto rounded-3xl">
+            <table class="lists-table w-full text-left text-sm">
                 <thead>
                     <tr>
                         <th class="px-4 py-3 text-center font-medium text-ink">{{ __('lists.public') }}</th>
@@ -77,9 +79,8 @@
                             <td class="px-4 py-3 text-center">
                                 @if ($item->is_public)
                                     <span class="inline-flex text-ink">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12 2.25 2.25 4.75-5" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                         </svg>
                                         <span class="sr-only">{{ __('lists.public') }}</span>
                                     </span>

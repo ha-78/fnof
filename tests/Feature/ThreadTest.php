@@ -104,7 +104,11 @@ it('lists threads on the threads page', function () {
         ->assertSuccessful()
         ->assertSee('En tråd i listan')
         ->assertSee(__('threads.threads'))
-        ->assertSee(__('threads.archive'));
+        ->assertSee(__('threads.archive'))
+        ->assertSee('threads-form', false)
+        ->assertSee('bg-[var(--color-a-5)]', false)
+        ->assertSee('text-[var(--color-a-1)]', false)
+        ->assertDontSee('bg-form', false);
 });
 
 it('requires a message to start a thread', function () {

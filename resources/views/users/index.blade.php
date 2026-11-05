@@ -7,7 +7,7 @@
         <section class="mt-8">
             <h2 class="text-lg font-medium">{{ __('users.context') }}</h2>
 
-            <form method="POST" action="{{ route('contexts.update', $context) }}" class="mt-4 space-y-3 rounded-3xl bg-form p-5">
+            <form method="POST" action="{{ route('contexts.update', $context) }}" class="account-form mt-4 space-y-3 rounded-3xl p-5">
                 @csrf
                 @method('PATCH')
                 <input type="hidden" name="form" value="context">
@@ -21,7 +21,9 @@
                     @endif
                 @enderror
 
-                <button type="submit" class="rounded-full bg-button px-4 py-2 text-sm font-medium text-button-ink hover:opacity-90">{{ __('users.save_context') }}</button>
+                <div class="flex justify-end">
+                    <button type="submit" class="rounded-full bg-[var(--color-g-5)] px-4 py-2 text-sm font-medium text-[var(--color-g-1)] hover:opacity-90">{{ __('users.save_context') }}</button>
+                </div>
             </form>
         </section>
     @endif
@@ -31,7 +33,7 @@
             <h2 class="text-lg font-medium">{{ __('users.invites.heading') }}</h2>
             <p class="mt-2 text-sm text-muted">{{ __('users.invites.lifetime') }}</p>
 
-            <form method="POST" action="{{ route('invites.store') }}" class="mt-4 space-y-3 rounded-3xl bg-form p-5">
+            <form method="POST" action="{{ route('invites.store') }}" class="account-form mt-4 space-y-3 rounded-3xl p-5">
                 @csrf
                 <input type="hidden" name="form" value="invite">
 
@@ -62,7 +64,9 @@
                     <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
                 @enderror
 
-                <button type="submit" class="rounded-full bg-button px-4 py-2 text-sm font-medium text-button-ink hover:opacity-90">{{ __('users.invites.send') }}</button>
+                <div class="flex justify-end">
+                    <button type="submit" class="rounded-full bg-[var(--color-g-5)] px-4 py-2 text-sm font-medium text-[var(--color-g-1)] hover:opacity-90">{{ __('users.invites.send') }}</button>
+                </div>
             </form>
         </section>
 
@@ -70,10 +74,10 @@
             <h2 class="text-lg font-medium">{{ __('users.invites.pending') }}</h2>
 
             @if ($pendingInvites->isEmpty())
-                <p class="mt-4 text-sm text-muted">{{ __('users.invites.empty') }}</p>
+                <p class="account-surface mt-4 rounded-3xl px-4 py-3 text-sm text-ink">{{ __('users.invites.empty') }}</p>
             @else
-                <div class="data-table mt-4 overflow-x-auto rounded-3xl">
-                    <table class="w-full text-left text-sm">
+                <div class="account-surface mt-4 overflow-x-auto rounded-3xl">
+                    <table class="account-table w-full text-left text-sm">
                         <thead>
                             <tr>
                                 <th class="px-4 py-3 font-medium text-ink">{{ __('users.name') }}</th>
@@ -131,8 +135,8 @@
     <section class="mt-8">
         <h2 class="text-lg font-medium">{{ __('users.users') }}</h2>
 
-        <div class="data-table mt-4 overflow-x-auto rounded-3xl">
-            <table class="w-full text-left text-sm">
+        <div class="account-surface mt-4 overflow-x-auto rounded-3xl">
+            <table class="account-table w-full text-left text-sm">
                 <thead>
                     <tr>
                         <th class="px-4 py-3 font-medium text-ink">{{ __('users.name') }}</th>

@@ -81,7 +81,12 @@ it('lists a list by name', function () {
     $response = $this->actingAs($user)
         ->get(route('lists.edit'))
         ->assertSuccessful()
-        ->assertSee('data-table', false)
+        ->assertSee('lists-surface', false)
+        ->assertSee('lists-table', false)
+        ->assertSee('lists-form', false)
+        ->assertSee('bg-[var(--color-c-5)]', false)
+        ->assertSee('text-[var(--color-c-1)]', false)
+        ->assertDontSee('bg-form', false)
         ->assertSee(__('lists.edit'))
         ->assertSee(__('lists.created_by'))
         ->assertSee(__('lists.created_at'))
@@ -91,7 +96,7 @@ it('lists a list by name', function () {
         ->assertSee($user->name)
         ->assertSee($createdAt->toDateString())
         ->assertDontSee('15:45')
-        ->assertDontSee('m8.5 12 2.25 2.25 4.75-5', false)
+        ->assertDontSee('m4.5 12.75 6 6 9-13.5', false)
         ->assertSee('m14.74 9-.346 9', false)
         ->assertSee(__('lists.confirm_delete'), false);
 
@@ -133,7 +138,7 @@ it('hides private lists and lists from another context', function () {
         ->assertSuccessful()
         ->assertSee('Delad')
         ->assertSee($owner->name)
-        ->assertSee('m8.5 12 2.25 2.25 4.75-5', false)
+        ->assertSee('m4.5 12.75 6 6 9-13.5', false)
         ->assertDontSee('Hemlig')
         ->assertDontSee('Annanstans');
 });

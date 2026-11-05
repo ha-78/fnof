@@ -8,7 +8,7 @@
     <p class="mt-4 inline-flex rounded-full bg-sun px-3 py-1 text-sm text-ink">{{ __('users.role') }}: {{ $user->role->label() }}</p>
 
     @if ($canChangeRole)
-        <form method="POST" action="{{ route('users.role.update', $user) }}" class="mt-6 space-y-3 rounded-3xl bg-form p-5">
+        <form method="POST" action="{{ route('users.role.update', $user) }}" class="account-form mt-6 space-y-3 rounded-3xl p-5">
             @csrf
             @method('PATCH')
 
@@ -19,12 +19,14 @@
                         <option value="{{ $role->value }}" @selected($user->role === $role)>{{ $role->label() }}</option>
                     @endforeach
                 </select>
-                <div>
-                    <button type="submit" class="rounded-full bg-button px-4 py-2 text-sm font-medium text-button-ink hover:opacity-90">{{ __('users.save_role') }}</button>
+                <div class="flex justify-end">
+                    <button type="submit" class="rounded-full bg-[var(--color-g-5)] px-4 py-2 text-sm font-medium text-[var(--color-g-1)] hover:opacity-90">{{ __('users.save_role') }}</button>
                 </div>
             @else
                 <input type="hidden" name="role" value="{{ $assignableRoles[0]->value }}">
-                <button type="submit" class="rounded-full bg-button px-4 py-2 text-sm font-medium text-button-ink hover:opacity-90">{{ __('users.make_user') }}</button>
+                <div class="flex justify-end">
+                    <button type="submit" class="rounded-full bg-[var(--color-g-5)] px-4 py-2 text-sm font-medium text-[var(--color-g-1)] hover:opacity-90">{{ __('users.make_user') }}</button>
+                </div>
             @endif
 
             @error('role')
@@ -34,7 +36,7 @@
     @endif
 
     @if ($canAssignFeatures)
-        <section class="mt-6 rounded-3xl bg-aside p-5">
+        <section class="account-form mt-6 rounded-3xl p-5">
             <h2 class="text-lg font-medium">{{ __('users.permissions') }}</h2>
 
             @if ($features === [])
@@ -61,7 +63,9 @@
                         <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
                     @enderror
 
-                    <button type="submit" class="rounded-full bg-button px-4 py-2 text-sm font-medium text-button-ink hover:opacity-90">{{ __('users.save_permissions') }}</button>
+                    <div class="flex justify-end">
+                        <button type="submit" class="rounded-full bg-[var(--color-g-5)] px-4 py-2 text-sm font-medium text-[var(--color-g-1)] hover:opacity-90">{{ __('users.save_permissions') }}</button>
+                    </div>
                 </form>
             @endif
         </section>

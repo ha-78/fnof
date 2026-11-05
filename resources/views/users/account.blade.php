@@ -18,7 +18,7 @@
             @foreach (['light', 'dark', 'default'] as $theme)
                 <button
                     type="button"
-                    class="cursor-pointer px-2 py-1 text-ink hover:underline"
+                    class="px-2 py-1 text-ink hover:underline"
                     x-bind:class="current === '{{ $theme }}' ? 'font-semibold' : ''"
                     x-on:click="pick('{{ $theme }}')"
                 >{{ __('themes.'.$theme) }}</button>
@@ -30,10 +30,10 @@
         <h2 class="text-lg font-medium">{{ __('users.sessions') }}</h2>
 
         @if ($devices->isEmpty())
-            <p class="mt-4 text-sm text-muted">{{ __('users.devices.empty') }}</p>
+            <p class="account-surface mt-4 rounded-3xl px-4 py-3 text-sm text-ink">{{ __('users.devices.empty') }}</p>
         @else
-            <div class="data-table mt-4 overflow-x-auto rounded-3xl">
-                <table class="w-full text-left text-sm">
+            <div class="account-surface mt-4 overflow-x-auto rounded-3xl">
+                <table class="account-table w-full text-left text-sm">
                     <thead>
                         <tr>
                             <th class="px-4 py-3 font-medium text-ink">{{ __('users.devices.name') }}</th>
@@ -67,7 +67,9 @@
 
         <form method="POST" action="{{ route('logout') }}" class="mt-4">
             @csrf
-            <button type="submit" class="rounded-full bg-pill px-3 py-1 text-sm text-ink hover:bg-pill-active">{{ __('users.log_out') }}</button>
+            <div class="flex justify-end">
+                <button type="submit" class="rounded-full bg-[var(--color-g-5)] px-4 py-2 text-sm font-medium text-[var(--color-g-1)] hover:opacity-90">{{ __('users.log_out') }}</button>
+            </div>
             <p class="mt-3 text-sm text-muted">{{ __('users.log_out_hint') }}</p>
         </form>
     </section>

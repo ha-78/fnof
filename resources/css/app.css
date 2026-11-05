@@ -56,7 +56,7 @@
     --lilac: var(--color-b-2);
     --rose: var(--color-c-2);
     --form: var(--color-d-2);
-    --field: var(--color-c-1);
+    --field: #fff;
     --button: var(--color-b-3);
     --button-ink: var(--color-d-5);
     --chip: var(--color-c-3);
@@ -113,6 +113,92 @@ html[data-theme='dark'] .data-table {
     background-color: var(--color-d-4);
 }
 
+.bookmarks-surface,
+.bookmarks-table thead tr {
+    background-color: var(--color-e-2);
+}
+
+.bookmarks-form {
+    border: 3px solid var(--color-e-2);
+}
+
+.bookmarks-table tbody tr {
+    background-color: var(--color-e-1);
+}
+
+html[data-theme='dark'] .bookmarks-surface,
+html[data-theme='dark'] .bookmarks-table thead tr {
+    background-color: var(--color-e-4);
+}
+
+html[data-theme='dark'] .bookmarks-form {
+    border-color: var(--color-e-4);
+}
+
+html[data-theme='dark'] .bookmarks-table tbody tr {
+    background-color: var(--color-e-3);
+}
+
+.lists-surface,
+.lists-table thead tr {
+    background-color: var(--color-c-2);
+}
+
+.lists-form {
+    border: 3px solid var(--color-c-2);
+}
+
+.lists-table tbody tr {
+    background-color: var(--color-c-1);
+}
+
+html[data-theme='dark'] .lists-surface,
+html[data-theme='dark'] .lists-table thead tr {
+    background-color: var(--color-c-4);
+}
+
+html[data-theme='dark'] .lists-form {
+    border-color: var(--color-c-4);
+}
+
+html[data-theme='dark'] .lists-table tbody tr {
+    background-color: var(--color-c-3);
+}
+
+.threads-form {
+    border: 3px solid var(--color-a-2);
+}
+
+html[data-theme='dark'] .threads-form {
+    border-color: var(--color-a-4);
+}
+
+.account-surface,
+.account-table thead tr {
+    background-color: var(--color-g-2);
+}
+
+.account-form {
+    border: 3px solid var(--color-g-2);
+}
+
+.account-table tbody tr {
+    background-color: var(--color-g-1);
+}
+
+html[data-theme='dark'] .account-surface,
+html[data-theme='dark'] .account-table thead tr {
+    background-color: var(--color-g-4);
+}
+
+html[data-theme='dark'] .account-form {
+    border-color: var(--color-g-4);
+}
+
+html[data-theme='dark'] .account-table tbody tr {
+    background-color: var(--color-g-3);
+}
+
 .home-threads > p {
     background-color: var(--color-a-2);
 }
@@ -153,6 +239,10 @@ html[data-theme='dark'] .home-threads > p {
 }
 
 @layer base {
+    button:not(:disabled) {
+        cursor: pointer;
+    }
+
     [x-cloak] {
         display: none !important;
     }

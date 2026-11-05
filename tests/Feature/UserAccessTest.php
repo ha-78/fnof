@@ -187,7 +187,12 @@ it('shows each person their account, and the user list only to an admin', functi
         ->assertSee(__('users.context'))
         ->assertSee(__('users.manage'))
         ->assertDontSee(__('users.log_out'))
-        ->assertSee('data-table', false);
+        ->assertSee('account-surface', false)
+        ->assertSee('account-table', false)
+        ->assertSee('account-form', false)
+        ->assertSee('bg-[var(--color-g-5)]', false)
+        ->assertSee('text-[var(--color-g-1)]', false)
+        ->assertDontSee('bg-form', false);
 
     $this->actingAs($reader)
         ->get(route('account'))
