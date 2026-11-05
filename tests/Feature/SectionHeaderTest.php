@@ -20,6 +20,7 @@ it('paints the header from the current section', function (string $routeName, st
     'threads' => ['threads.index', 'a'],
     'lists' => ['lists.index', 'c'],
     'bookmarks' => ['bookmarks.index', 'e'],
+    'meals' => ['meals.index', 'f'],
     'account' => ['account', 'g'],
 ]);
 
@@ -54,6 +55,7 @@ it('marks the current section icon and leaves the others in their own color', fu
         ->assertSee('background-color: var(--color-d-1)', false)
         ->assertSee('background-color: var(--color-a-2)', false)
         ->assertSee('background-color: var(--color-e-2)', false)
+        ->assertSee('background-color: var(--color-f-2)', false)
         ->assertSee('background-color: var(--color-g-2)', false)
         ->assertDontSee('background-color: var(--color-c-2)', false)
         ->assertSee('aria-current="page"', false);
@@ -65,6 +67,7 @@ it('marks the current section icon and leaves the others in their own color', fu
         ->assertSee('background-color: var(--color-d-1)', false)
         ->assertSee('background-color: var(--color-c-2)', false)
         ->assertSee('background-color: var(--color-e-2)', false)
+        ->assertSee('background-color: var(--color-f-2)', false)
         ->assertSee('background-color: var(--color-g-2)', false)
         ->assertDontSee('background-color: var(--color-a-2)', false)
         ->assertSee('M20.25 8.511c.884.284', false)
@@ -76,6 +79,7 @@ it('marks the current section icon and leaves the others in their own color', fu
         ->assertSee('background-color: var(--color-a-2)', false)
         ->assertSee('background-color: var(--color-c-2)', false)
         ->assertSee('background-color: var(--color-e-2)', false)
+        ->assertSee('background-color: var(--color-f-2)', false)
         ->assertSee('background-color: var(--color-g-2)', false)
         ->assertDontSee('background-color: var(--color-d-1)', false)
         ->assertDontSee('aria-current="page"', false);

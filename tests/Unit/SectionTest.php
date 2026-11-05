@@ -12,11 +12,12 @@ it('assigns each section a color letter', function () {
         ->and(Section::Personal->color())->toBe('g');
 });
 
-it('keeps threads, lists, bookmarks, and account in the header', function () {
+it('keeps threads, lists, bookmarks, meals, and account in the header', function () {
     expect(Section::header())->toBe([
         Section::Threads,
         Section::Lists,
         Section::Bookmarks,
+        Section::Meals,
         Section::Personal,
     ]);
 });
@@ -37,6 +38,7 @@ it('maps route names onto their section', function (string $name, Section $secti
     'lists' => ['lists.index', Section::Lists],
     'list items' => ['lists.items.store', Section::Lists],
     'bookmarks' => ['bookmarks.destroy', Section::Bookmarks],
+    'meals' => ['meals.index', Section::Meals],
     'account' => ['account', Section::Personal],
     'users' => ['users.show', Section::Personal],
     'invites' => ['invites.store', Section::Personal],

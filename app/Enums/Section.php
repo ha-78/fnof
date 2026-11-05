@@ -39,7 +39,7 @@ enum Section: string
             self::Calendar => [],
             self::Lists => ['lists.*'],
             self::Bookmarks => ['bookmarks.*'],
-            self::Meals => [],
+            self::Meals => ['meals.*'],
             self::Personal => ['account', 'users.*', 'invites.*', 'contexts.*'],
         };
     }
@@ -47,7 +47,7 @@ enum Section: string
     public function inHeader(): bool
     {
         return match ($this) {
-            self::Threads, self::Lists, self::Bookmarks, self::Personal => true,
+            self::Threads, self::Lists, self::Bookmarks, self::Meals, self::Personal => true,
             default => false,
         };
     }
@@ -58,6 +58,7 @@ enum Section: string
             self::Threads => 'threads.index',
             self::Lists => 'lists.index',
             self::Bookmarks => 'bookmarks.index',
+            self::Meals => 'meals.index',
             self::Personal => 'account',
             default => null,
         };
@@ -69,6 +70,7 @@ enum Section: string
             self::Threads => __('threads.threads'),
             self::Lists => __('lists.lists'),
             self::Bookmarks => __('bookmarks.bookmarks'),
+            self::Meals => __('meals.meals'),
             self::Personal => __('users.account'),
             default => '',
         };
