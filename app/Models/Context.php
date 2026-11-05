@@ -32,4 +32,12 @@ class Context extends Model
     {
         return $this->hasMany(Bookmark::class);
     }
+
+    /**
+     * @return HasMany<ItemList, $this>
+     */
+    public function lists(): HasMany
+    {
+        return $this->hasMany(ItemList::class);
+    }
 }

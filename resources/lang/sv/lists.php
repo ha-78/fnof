@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'lists' => 'Listor',
+    'edit' => 'Redigera listor',
+    'name' => 'Namn',
+    'public' => 'Publikt',
+    'created_by' => 'Skapad av',
+    'created_at' => 'Skapad',
+    'is_public' => 'Publikt i den här kontexten',
+    'save' => 'Spara',
+    'delete' => 'Ta bort lista',
+    'confirm_delete' => 'Ta bort den här listan?',
+    'empty' => 'Inga listor ännu.',
+    'created' => 'Listan är sparad.',
+    'deleted' => 'Listan är borttagen.',
+    'items' => 'Poster',
+    'list' => 'Lista',
+    'description' => 'Beskrivning',
+    'estimate' => 'Uppskattning',
+    'items_empty' => 'Inga poster ännu.',
+    'delete_item' => 'Ta bort post',
+    'confirm_delete_item' => 'Ta bort den här posten?',
+    'item_created' => 'Posten är sparad.',
+    'item_deleted' => 'Posten är borttagen.',
+];

@@ -73,6 +73,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<ItemList, $this>
+     */
+    public function lists(): HasMany
+    {
+        return $this->hasMany(ItemList::class);
+    }
+
+    /**
      * @return HasMany<Reply, $this>
      */
     public function replies(): HasMany

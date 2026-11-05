@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'lists' => 'Lists',
+    'edit' => 'Edit lists',
+    'name' => 'Name',
+    'public' => 'Public',
+    'created_by' => 'Created by',
+    'created_at' => 'Created',
+    'is_public' => 'Public in this context',
+    'save' => 'Save',
+    'delete' => 'Delete list',
+    'confirm_delete' => 'Delete this list?',
+    'empty' => 'No lists yet.',
+    'created' => 'The list is saved.',
+    'deleted' => 'The list is deleted.',
+    'items' => 'Items',
+    'list' => 'List',
+    'description' => 'Description',
+    'estimate' => 'Estimate',
+    'items_empty' => 'No items yet.',
+    'delete_item' => 'Delete item',
+    'confirm_delete_item' => 'Delete this item?',
+    'item_created' => 'The item is saved.',
+    'item_deleted' => 'The item is deleted.',
+];

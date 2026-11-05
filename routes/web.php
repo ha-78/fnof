@@ -7,6 +7,8 @@ use App\Http\Controllers\ContextController;
 use App\Http\Controllers\DeviceRememberController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InviteController;
+use App\Http\Controllers\ListController;
+use App\Http\Controllers\ListItemController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\UserController;
@@ -29,6 +31,13 @@ Route::middleware('throttle:60,1')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/home', HomeController::class)->name('home');
+
+    Route::get('/lists', [ListController::class, 'index'])->name('lists.index');
+    Route::get('/lists/edit', [ListController::class, 'edit'])->name('lists.edit');
+    Route::post('/lists', [ListController::class, 'store'])->name('lists.store');
+    Route::post('/lists/items', [ListItemController::class, 'store'])->name('lists.items.store');
+    Route::delete('/lists/items/{item}', [ListItemController::class, 'destroy'])->name('lists.items.destroy');
+    Route::delete('/lists/{list}', [ListController::class, 'destroy'])->name('lists.destroy');
 
     Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::post('/bookmarks', [BookmarkController::class, 'store'])->name('bookmarks.store');

@@ -12,19 +12,23 @@
             <p class="mt-2 text-sm text-[var(--color-d-4)]">{{ __('colors.steps') }}</p>
 
             <div class="mt-10 space-y-10">
-                @foreach ($families as $label => $name)
+                @foreach ($families as $family)
                     <section>
-                        <h2 class="text-lg font-medium">{{ $label }}</h2>
+                        <h2 class="text-lg font-medium">
+                            <span class="font-semibold">{{ $family['letter'] }}</span>
+                            {{ $family['name'] }}
+                        </h2>
+                        <p class="mt-1 text-sm text-[var(--color-d-4)]">{{ $family['used_for'] }}</p>
                         <div class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-5">
                             @foreach ($steps as $step)
                                 <figure>
                                     <div
                                         class="h-28 rounded-2xl border-2 border-[var(--color-d-4)]"
-                                        style="background-color: var(--{{ $name }}-{{ $step }})"
+                                        style="background-color: var(--{{ $family['token'] }}-{{ $step }})"
                                     ></div>
                                     <figcaption class="mt-2 text-sm">
-                                        <span class="font-medium">{{ $step }}</span>
-                                        <span class="mt-0.5 block text-xs text-[var(--color-d-4)]">--{{ $name }}-{{ $step }}</span>
+                                        <span class="font-medium">{{ $family['letter'] }}{{ $step }}</span>
+                                        <span class="mt-0.5 block text-xs text-[var(--color-d-4)]">--{{ $family['token'] }}-{{ $step }}</span>
                                     </figcaption>
                                 </figure>
                             @endforeach

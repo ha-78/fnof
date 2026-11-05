@@ -3,7 +3,10 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
-/* Step 1 is lightest, step 5 is darkest. */
+/* Step 1 is lightest, step 5 is darkest.
+   a green: threads, votes. b burgundy: calendar, notifications.
+   c yellow: lists. d brown: start. d-1 is the shared background and fields, d-5 is the text.
+   e turquoise: bookmarks. f purple: meals. g blue: notes, account. */
 :root {
     --color-a-1: #f2f5ea;
     --color-a-2: #d7e3c2;
@@ -15,22 +18,37 @@
     --color-b-3: #c47868;
     --color-b-4: #8a3d32;
     --color-b-5: #4e241c;
-    --color-c-1: #fcf6dc;
-    --color-c-2: #f9eeae;
-    --color-c-3: #f5e07a;
-    --color-c-4: #efd04a;
-    --color-c-5: #e4bc28;
+    --color-c-1: #fcf6e4;
+    --color-c-2: #f6e7a8;
+    --color-c-3: #e6c85a;
+    --color-c-4: #c4962a;
+    --color-c-5: #6e5216;
     --color-d-1: #f8f0e6;
     --color-d-2: #e8d0b6;
     --color-d-3: #c89668;
     --color-d-4: #935432;
     --color-d-5: #50281a;
+    --color-e-1: #e5f6f8;
+    --color-e-2: #b7e4ea;
+    --color-e-3: #4eacb8;
+    --color-e-4: #2a7380;
+    --color-e-5: #163e46;
+    --color-f-1: #f4f0f8;
+    --color-f-2: #e0d2ee;
+    --color-f-3: #b08ccc;
+    --color-f-4: #754890;
+    --color-f-5: #3e2452;
+    --color-g-1: #eef1f6;
+    --color-g-2: #d2dbea;
+    --color-g-3: #8aa4c4;
+    --color-g-4: #4a6892;
+    --color-g-5: #263348;
 }
 
 :root {
     color-scheme: light;
     --canvas: var(--color-d-1);
-    --header: var(--color-a-3);
+    --header: var(--header-light, var(--color-d-3));
     --ink: var(--color-d-5);
     --muted: var(--color-d-4);
     --sun: var(--color-c-4);
@@ -60,7 +78,7 @@
 html[data-theme='dark'] {
     color-scheme: dark;
     --canvas: var(--color-d-5);
-    --header: var(--color-a-5);
+    --header: var(--header-dark, var(--color-d-4));
     --ink: var(--color-d-1);
     --muted: var(--color-d-2);
     --sun: var(--color-a-4);
