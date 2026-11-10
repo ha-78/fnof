@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Hash;
 it('does not offer public registration', function () {
     $this->get('/')
         ->assertSuccessful()
+        ->assertSee('href="'.route('login').'"', false)
+        ->assertSee('welcome-card', false)
+        ->assertSee(__('welcome.intro'))
+        ->assertDontSee('Documentation', false)
         ->assertDontSee('/register', false);
 
     $this->get('/register')->assertNotFound();

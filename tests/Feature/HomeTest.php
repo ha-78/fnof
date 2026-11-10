@@ -13,7 +13,11 @@ it('shows the signed-in user on the home page', function () {
         ->assertSee(route('account'), false)
         ->assertSee(__('users.account'), false)
         ->assertDontSee(__('users.log_out'))
-        ->assertDontSee(__('themes.label'));
+        ->assertDontSee(__('themes.label'))
+        ->assertSee('threads-form', false)
+        ->assertSee('bg-[var(--color-a-5)]', false)
+        ->assertSee('text-[var(--color-a-1)]', false)
+        ->assertDontSee('bg-form', false);
 });
 
 it('asks guests to log in before home', function () {

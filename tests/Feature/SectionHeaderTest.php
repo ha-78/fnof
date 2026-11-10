@@ -14,7 +14,9 @@ it('paints the header from the current section', function (string $routeName, st
         ->get(route($routeName))
         ->assertSuccessful()
         ->assertSee('--header-light: var(--color-'.$letter.'-3)', false)
-        ->assertSee('--header-dark: var(--color-'.$letter.'-4)', false);
+        ->assertSee('--header-dark: var(--color-'.$letter.'-4)', false)
+        ->assertSee('--canvas-dark: var(--color-'.$letter.'-5)', false)
+        ->assertSee('--field-dark: var(--color-'.$letter.'-1)', false);
 })->with([
     'start' => ['home', 'd'],
     'threads' => ['threads.index', 'a'],
@@ -29,7 +31,9 @@ it('paints a thread with the threads color', function () {
         ->get(route('threads.show', Thread::factory()->create()))
         ->assertSuccessful()
         ->assertSee('--header-light: var(--color-a-3)', false)
-        ->assertSee('--header-dark: var(--color-a-4)', false);
+        ->assertSee('--header-dark: var(--color-a-4)', false)
+        ->assertSee('--canvas-dark: var(--color-a-5)', false)
+        ->assertSee('--field-dark: var(--color-a-1)', false);
 });
 
 it('paints list editing and user management with their section colors', function () {
@@ -88,5 +92,8 @@ it('marks the current section icon and leaves the others in their own color', fu
 it('leaves the login header on the shared fallback', function () {
     $this->get(route('login'))
         ->assertSuccessful()
-        ->assertDontSee('--header-light', false);
+        ->assertDontSee('--header-light', false)
+        ->assertSee('login-panel', false)
+        ->assertSee('login-button', false)
+        ->assertDontSee('bg-rose', false);
 });

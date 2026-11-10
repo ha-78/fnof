@@ -13,6 +13,8 @@ it('shows an empty meals page in the meals color', function () {
         ->assertSuccessful()
         ->assertSee('--header-light: var(--color-f-3)', false)
         ->assertSee('--header-dark: var(--color-f-4)', false)
+        ->assertSee('--canvas-dark: var(--color-f-5)', false)
+        ->assertSee('--field-dark: var(--color-f-1)', false)
         ->assertSee('href="'.route('meals.index').'"', false)
         ->assertSee(__('meals.meals'), false)
         ->assertSee('M13 .5c0-.276-.226-.506-.498-.465', false)

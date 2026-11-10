@@ -307,6 +307,7 @@ it('shows every reply under its thread on the home page', function () {
         ->assertSuccessful()
         ->assertSee('Startmeddelandet')
         ->assertSeeInOrder(['Första svaret', 'Andra svaret'])
+        ->assertSee('thread-replies', false)
         ->assertDontSee('Borttaget svar');
 });
 
@@ -319,6 +320,7 @@ it('shows a thread and its replies', function () {
         ->assertSuccessful()
         ->assertSee('Startmeddelandet')
         ->assertSee('Första svaret')
+        ->assertSee('thread-replies', false)
         ->assertSee(__('threads.reply'));
 });
 

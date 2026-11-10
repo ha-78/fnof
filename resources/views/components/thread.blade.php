@@ -6,14 +6,16 @@
             @if (filled($thread->title))
                 <p class="mb-2 text-lg font-semibold">{{ $thread->title }}</p>
             @endif
+
+            @if ($thread->replies->isNotEmpty())
+                <x-slot:footer>
+                    <div class="thread-replies mt-4 ml-5 space-y-4">
+                        @foreach ($thread->replies as $reply)
+                            <x-message plain compact relative-date :author-id="$reply->user_id" :body="$reply->body" :author="$reply->user?->name" :posted-at="$reply->created_at" />
+                        @endforeach
+                    </div>
+                </x-slot:footer>
+            @endif
         </x-message>
     </a>
-
-    @if ($thread->replies->isNotEmpty())
-        <div class="mt-2 ml-5 space-y-2">
-            @foreach ($thread->replies as $reply)
-                <x-message compact relative-date :author-id="$reply->user_id" :body="$reply->body" :author="$reply->user?->name" :posted-at="$reply->created_at" />
-            @endforeach
-        </div>
-    @endif
 </article>

@@ -1,7 +1,7 @@
 @extends('layouts.front')
 
 @section('content')
-    <div class="mx-auto max-w-md rounded-3xl bg-rose p-8 text-ink">
+    <div class="login-panel mx-auto max-w-md rounded-3xl p-8 text-ink">
         <h1 class="text-center text-2xl font-semibold tracking-tight">{{ __('auth_pages.login') }}</h1>
 
         @if ($errors->any())
@@ -22,7 +22,7 @@
             <label class="block text-sm font-medium" for="password">{{ __('auth_pages.password') }}</label>
             <input id="password" type="password" name="password" required autocomplete="current-password" class="w-full rounded-2xl bg-field px-3 py-2 text-ink">
 
-            <button type="submit" class="w-full rounded-full bg-button px-3 py-2 font-medium text-button-ink hover:opacity-90">{{ __('auth_pages.login') }}</button>
+            <button type="submit" class="login-button w-full rounded-full px-3 py-2 font-medium hover:opacity-90">{{ __('auth_pages.login') }}</button>
         </form>
     </div>
 

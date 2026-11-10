@@ -6,10 +6,10 @@
     @endif
 
     @if ($thread->replies->isNotEmpty())
-        <div class="mt-3 ml-5 space-y-2">
+        <div class="thread-replies mt-4 ml-5 space-y-4">
             @foreach ($thread->replies as $reply)
                 <div>
-                    <x-message compact :author-id="$reply->user_id" :body="$reply->body" :author="$reply->user?->name" :posted-at="$reply->created_at" />
+                    <x-message plain compact :author-id="$reply->user_id" :body="$reply->body" :author="$reply->user?->name" :posted-at="$reply->created_at" />
 
                     @can('delete', $reply)
                         <form method="POST" action="{{ route('replies.destroy', [$thread, $reply]) }}" class="mt-1" onsubmit="return confirm(@js(__('threads.confirm_delete_reply')))">

@@ -17,13 +17,15 @@
                     <h1 class="mb-3 inline-flex rounded-full bg-chip px-3 py-1 text-lg font-medium text-ink">{{ $thread->title }}</h1>
                 @endif
 
-                <x-message :author-id="$thread->user_id" :body="$thread->body" :author="$thread->user?->name" :posted-at="$thread->created_at" />
+                <x-message :author-id="$thread->user_id" :body="$thread->body" :author="$thread->user?->name" :posted-at="$thread->created_at">
+                    <x-slot:footer>
+                        <div x-ref="region">
+                            <x-replies :thread="$thread" />
+                        </div>
+                    </x-slot:footer>
+                </x-message>
 
-                <div x-ref="region">
-                    <x-replies :thread="$thread" />
-                </div>
-
-                <form method="POST" action="{{ route('threads.replies.store', $thread) }}" class="threads-form mt-3 ml-5 space-y-2 rounded-3xl p-3" x-show="!archived" @if ($thread->isArchived()) x-cloak @endif>
+                <form method="POST" action="{{ route('threads.replies.store', $thread) }}" class="threads-form mt-3 space-y-2 rounded-3xl p-3" x-show="!archived" @if ($thread->isArchived()) x-cloak @endif>
                     @csrf
 
                     <label class="block text-xs text-muted" for="reply-body">{{ __('threads.reply') }}</label>
