@@ -25,6 +25,7 @@
                     </x-slot:footer>
                 </x-message>
 
+                @can('reply', $thread)
                 <form method="POST" action="{{ route('threads.replies.store', $thread) }}" class="threads-form mt-3 space-y-2 rounded-3xl p-3" x-show="!archived" @if ($thread->isArchived()) x-cloak @endif>
                     @csrf
 
@@ -39,6 +40,7 @@
                         <button type="submit" class="rounded-full bg-[var(--color-a-5)] px-3 py-1 text-xs font-medium text-[var(--color-a-1)] hover:opacity-90">{{ __('threads.send_reply') }}</button>
                     </div>
                 </form>
+                @endcan
             </div>
 
             @canany(['update', 'archive', 'delete'], $thread)

@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\Feature;
 use App\Enums\Role;
-use App\Models\Context;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -35,21 +35,33 @@ class UserFactory extends Factory
         ];
     }
 
+    public function configure(): static
+    {
+        return $this->afterCreating(function (User $user): void {
+            if ($user->memberships()->doesntExist()) {
+                $user->role = Role::Member;
+            }
+        });
+    }
+
     public function withRole(Role $role): static
     {
         return $this->afterCreating(function (User $user) use ($role): void {
-            $context = Context::query()->orderBy('id')->first();
+            $user->role = $role;
+        });
+    }
 
-            if ($context === null) {
-                $context = Context::query()->create([
-                    'name' => $user->name,
+    public function withFeatures(Feature ...$features): static
+    {
+        return $this->afterCreating(function (User $user) use ($features): void {
+            $membership = $user->contextMembership();
+
+            foreach ($features as $feature) {
+                $membership->featureOverrides()->create([
+                    'feature' => $feature,
+                    'granted' => true,
                 ]);
             }
-
-            $user->memberships()->create([
-                'context_id' => $context->id,
-                'role' => $role,
-            ]);
         });
     }
 

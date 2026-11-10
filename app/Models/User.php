@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -41,11 +42,16 @@ class User extends Authenticatable
     }
 
     /**
-     * @return HasMany<UserFeature, $this>
+     * @return HasManyThrough<UserFeature, ContextUser, $this>
      */
-    public function featureOverrides(): HasMany
+    public function featureOverrides(): HasManyThrough
     {
-        return $this->hasMany(UserFeature::class);
+        return $this->hasManyThrough(
+            UserFeature::class,
+            ContextUser::class,
+            'user_id',
+            'context_user_id',
+        );
     }
 
     /**
@@ -78,6 +84,14 @@ class User extends Authenticatable
     public function lists(): HasMany
     {
         return $this->hasMany(ItemList::class);
+    }
+
+    /**
+     * @return HasMany<Meal, $this>
+     */
+    public function meals(): HasMany
+    {
+        return $this->hasMany(Meal::class);
     }
 
     /**
@@ -116,6 +130,11 @@ class User extends Authenticatable
         )->withoutObjectCaching();
     }
 
+    public function canWrite(): bool
+    {
+        return $this->role->atLeast(Role::Member);
+    }
+
     public function allows(Feature $feature): bool
     {
         if ($this->role->atLeast(Role::Admin)) {
@@ -149,7 +168,7 @@ class User extends Authenticatable
         ];
     }
 
-    private function contextMembership(): ?ContextUser
+    public function contextMembership(): ?ContextUser
     {
         if ($this->relationLoaded('memberships')) {
             return $this->memberships->sortBy('id')->first();

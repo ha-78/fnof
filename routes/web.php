@@ -9,7 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\ListController;
 use App\Http\Controllers\ListItemController;
-use App\Http\Controllers\MealController;
+use App\Http\Controllers\MealsController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\UserController;
@@ -44,7 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/bookmarks', [BookmarkController::class, 'store'])->name('bookmarks.store');
     Route::delete('/bookmarks/{bookmark}', [BookmarkController::class, 'destroy'])->name('bookmarks.destroy');
 
-    Route::get('/meal', MealController::class)->name('meals.index');
+    Route::get('/meals', [MealsController::class, 'index'])->name('meals.index');
+    Route::post('/meals', [MealsController::class, 'store'])->name('meals.store');
 
     Route::get('/threads', [ThreadController::class, 'index'])->name('threads.index');
     Route::get('/threads/version', [ThreadController::class, 'version'])->name('threads.version');

@@ -10,6 +10,7 @@
     </div>
 
     @unless ($showingArchived)
+        @can('create', App\Models\Thread::class)
         <form method="POST" action="{{ route('threads.store') }}" class="threads-form mt-8 space-y-3 rounded-3xl p-5">
             @csrf
 
@@ -24,6 +25,7 @@
                 <button type="submit" class="rounded-full bg-[var(--color-a-5)] px-4 py-2 text-sm font-medium text-[var(--color-a-1)] hover:opacity-90">{{ __('threads.publish') }}</button>
             </div>
         </form>
+        @endcan
     @endunless
 
     <section class="mt-8" x-data="liveRegion" data-fragment="thread-list" data-version="{{ $version }}" data-version-url="{{ route('threads.version') }}">

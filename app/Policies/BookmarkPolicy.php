@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Feature;
 use App\Models\Bookmark;
 use App\Models\User;
 use App\Policies\Concerns\ManagesOwnedRecord;
@@ -30,7 +31,12 @@ class BookmarkPolicy
 
     public function create(User $actor): bool
     {
-        return true;
+        return $actor->canWrite();
+    }
+
+    public function publish(User $actor): bool
+    {
+        return $actor->canWrite() && $actor->allows(Feature::PublishBookmarks);
     }
 
     public function update(User $actor, Bookmark $bookmark): bool
@@ -41,7 +47,8 @@ class BookmarkPolicy
 
     public function delete(User $actor, Bookmark $bookmark): bool
     {
-        return (int) $actor->getKey() === (int) $bookmark->user_id
+        return $actor->canWrite()
+            && (int) $actor->getKey() === (int) $bookmark->user_id
             && (int) $bookmark->context_id === $actor->currentContextId();
     }
 }

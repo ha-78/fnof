@@ -6,6 +6,7 @@ use App\Enums\Role;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['context_id', 'user_id', 'role'])]
 class ContextUser extends Model
@@ -30,6 +31,14 @@ class ContextUser extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return HasMany<UserFeature, $this>
+     */
+    public function featureOverrides(): HasMany
+    {
+        return $this->hasMany(UserFeature::class, 'context_user_id');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Feature;
 use App\Enums\Role;
 use App\Models\ItemList;
 use App\Models\User;
@@ -36,7 +37,12 @@ class ItemListPolicy
 
     public function create(User $actor): bool
     {
-        return $this->manage($actor);
+        return $actor->canWrite();
+    }
+
+    public function publish(User $actor): bool
+    {
+        return $actor->canWrite() && $actor->allows(Feature::PublishLists);
     }
 
     public function update(User $actor, ItemList $list): bool

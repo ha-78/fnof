@@ -9,6 +9,10 @@ trait ManagesOwnedRecord
 {
     private function managesOwnedRecord(User $actor, ?int $ownerId): bool
     {
+        if (! $actor->canWrite()) {
+            return false;
+        }
+
         if ($actor->role->atLeast(Role::Admin)) {
             return true;
         }

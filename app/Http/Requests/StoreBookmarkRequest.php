@@ -9,7 +9,8 @@ class StoreBookmarkRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', Bookmark::class);
+        return $this->user()->can('create', Bookmark::class)
+            && (! $this->boolean('is_public') || $this->user()->can('publish', Bookmark::class));
     }
 
     protected function prepareForValidation(): void

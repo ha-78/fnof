@@ -33,7 +33,7 @@ class UserAccessService
 
             $locked->role = $role;
             $locked->save();
-            $locked->featureOverrides()->delete();
+            $locked->contextMembership()?->featureOverrides()->delete();
         });
     }
 
@@ -49,7 +49,18 @@ class UserAccessService
                 throw new AuthorizationException;
             }
 
-            $locked->featureOverrides()->delete();
+            $membership = $locked->contextMembership();
+
+            if ($membership === null) {
+                $locked->role = $locked->role;
+                $membership = $locked->contextMembership();
+            }
+
+            $membership?->featureOverrides()->delete();
+
+            if ($membership === null) {
+                return;
+            }
 
             foreach (Feature::cases() as $feature) {
                 $isGranted = $granted[$feature->value] ?? false;
@@ -58,7 +69,7 @@ class UserAccessService
                     continue;
                 }
 
-                $locked->featureOverrides()->create([
+                $membership->featureOverrides()->create([
                     'feature' => $feature,
                     'granted' => $isGranted,
                 ]);

@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Feature;
 use App\Models\ItemList;
 use App\Models\ListItem;
 use App\Models\User;
@@ -28,6 +29,10 @@ class ListItemPolicy
 
     public function create(User $actor, ?ItemList $list = null): bool
     {
+        if (! $actor->canWrite()) {
+            return false;
+        }
+
         if ($list === null) {
             return true;
         }
@@ -35,9 +40,15 @@ class ListItemPolicy
         return $actor->can('view', $list);
     }
 
+    public function publish(User $actor): bool
+    {
+        return $actor->canWrite() && $actor->allows(Feature::PublishListItems);
+    }
+
     public function delete(User $actor, ListItem $item): bool
     {
-        return (int) $actor->getKey() === (int) $item->list->user_id
+        return $actor->canWrite()
+            && (int) $actor->getKey() === (int) $item->list->user_id
             && (int) $item->list->context_id === $actor->currentContextId();
     }
 }

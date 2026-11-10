@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'feature', 'granted'])]
+#[Fillable(['context_user_id', 'feature', 'granted'])]
 class UserFeature extends Model
 {
     /**
-     * @return BelongsTo<User, $this>
+     * @return BelongsTo<ContextUser, $this>
      */
-    public function user(): BelongsTo
+    public function membership(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(ContextUser::class, 'context_user_id');
     }
 
     /**

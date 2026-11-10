@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Feature;
 use App\Enums\Role;
 use App\Models\Reply;
 use App\Models\Thread;
@@ -7,7 +8,7 @@ use App\Models\User;
 use App\Services\ThreadService;
 
 it('starts a thread from a message without a name', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->withFeatures(Feature::CreateThreads)->create();
 
     $response = $this->actingAs($user)
         ->post(route('threads.store'), ['body' => 'En kort tråd']);
@@ -26,11 +27,12 @@ it('starts a thread from a message without a name', function () {
         ->get(route('home'))
         ->assertSuccessful()
         ->assertSee('En kort tråd')
-        ->assertSee($user->name);
+        ->assertSee(__('threads.me'))
+        ->assertDontSee($user->name);
 });
 
 it('returns to the start page after creating a thread there', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->withFeatures(Feature::CreateThreads)->create();
 
     $this->actingAs($user)
         ->post(route('threads.store'), [
@@ -96,7 +98,7 @@ it('shows thread dates as today, yesterday, or days ago', function () {
 });
 
 it('lists threads on the threads page', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->withFeatures(Feature::CreateThreads)->create();
     Thread::factory()->create(['body' => 'En tråd i listan']);
 
     $this->actingAs($user)
@@ -112,7 +114,7 @@ it('lists threads on the threads page', function () {
 });
 
 it('requires a message to start a thread', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->withFeatures(Feature::CreateThreads)->create())
         ->post(route('threads.store'), ['body' => '   '])
         ->assertSessionHasErrors('body');
 
@@ -120,7 +122,7 @@ it('requires a message to start a thread', function () {
 });
 
 it('rejects images in a thread', function (string $body) {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->withFeatures(Feature::CreateThreads)->create())
         ->post(route('threads.store'), ['body' => $body])
         ->assertSessionHasErrors([
             'body' => __('threads.images_not_allowed'),
@@ -134,7 +136,7 @@ it('rejects images in a thread', function (string $body) {
 ]);
 
 it('keeps a picture link as text', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->withFeatures(Feature::CreateThreads)->create())
         ->post(route('threads.store'), ['body' => 'https://example.com/photo.png'])
         ->assertRedirect();
 
@@ -257,7 +259,7 @@ it('bumps one shared version when a thread changes', function () {
     $reply = Reply::factory()->for($thread)->create();
     $before = app(ThreadService::class)->version();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->withFeatures(Feature::ReplyInThreads)->create())
         ->post(route('threads.replies.store', $thread), ['body' => 'Ett svar'])
         ->assertRedirect();
 
@@ -279,7 +281,7 @@ it('leaves the shared version unchanged when a reply is refused', function () {
     $thread = Thread::factory()->archived()->create();
     $before = app(ThreadService::class)->version();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->withFeatures(Feature::ReplyInThreads)->create())
         ->post(route('threads.replies.store', $thread), ['body' => 'För sent'])
         ->assertSessionHasErrors('body');
 
@@ -311,11 +313,40 @@ it('shows every reply under its thread on the home page', function () {
         ->assertDontSee('Borttaget svar');
 });
 
+it('shows the current user as Me on their thread and replies', function () {
+    $user = User::factory()->create(['name' => 'Hanna']);
+    $other = User::factory()->create(['name' => 'Nils']);
+    $thread = Thread::factory()->for($user)->create(['body' => 'Min tråd']);
+    Reply::factory()->for($thread)->for($user)->create(['body' => 'Mitt svar']);
+    Reply::factory()->for($thread)->for($other)->create(['body' => 'Någon annans svar']);
+
+    $this->actingAs($user)
+        ->get(route('threads.show', $thread))
+        ->assertSuccessful()
+        ->assertSee(__('threads.me'))
+        ->assertSee('Nils')
+        ->assertDontSee('Hanna');
+
+    $this->actingAs($user)
+        ->get(route('home'))
+        ->assertSuccessful()
+        ->assertSee(__('threads.me'))
+        ->assertSee('Nils')
+        ->assertDontSee('Hanna');
+
+    $this->actingAs($other)
+        ->get(route('threads.show', $thread))
+        ->assertSuccessful()
+        ->assertSee('Hanna')
+        ->assertSee(__('threads.me'))
+        ->assertDontSee('Nils');
+});
+
 it('shows a thread and its replies', function () {
     $thread = Thread::factory()->create(['body' => 'Startmeddelandet']);
     Reply::factory()->for($thread)->create(['body' => 'Första svaret']);
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->withFeatures(Feature::ReplyInThreads)->create())
         ->get(route('threads.show', $thread))
         ->assertSuccessful()
         ->assertSee('Startmeddelandet')
@@ -326,7 +357,7 @@ it('shows a thread and its replies', function () {
 
 it('lets another user reply', function () {
     $thread = Thread::factory()->create(['body' => 'Start']);
-    $other = User::factory()->create();
+    $other = User::factory()->withFeatures(Feature::ReplyInThreads)->create();
 
     $this->actingAs($other)
         ->post(route('threads.replies.store', $thread), ['body' => 'Ett svar'])
@@ -347,7 +378,7 @@ it('lets another user reply', function () {
 it('refuses a reply on an archived thread', function () {
     $thread = Thread::factory()->archived()->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->withFeatures(Feature::ReplyInThreads)->create())
         ->post(route('threads.replies.store', $thread), ['body' => 'För sent'])
         ->assertSessionHasErrors([
             'body' => __('threads.archived_no_replies'),
@@ -522,4 +553,66 @@ it('keeps the thread when its author is removed', function () {
         ->assertSuccessful()
         ->assertSee('Kvar efteråt')
         ->assertSee(__('threads.removed_user'));
+});
+
+it('hides thread forms from a member without those grants', function () {
+    $member = User::factory()->create();
+    $thread = Thread::factory()->create(['body' => 'En tråd']);
+
+    $this->actingAs($member)
+        ->get(route('home'))
+        ->assertSuccessful()
+        ->assertDontSee('threads-form', false);
+
+    $this->actingAs($member)
+        ->get(route('threads.index'))
+        ->assertSuccessful()
+        ->assertDontSee('threads-form', false);
+
+    $this->actingAs($member)
+        ->get(route('threads.show', $thread))
+        ->assertSuccessful()
+        ->assertDontSee('action="'.route('threads.replies.store', $thread).'"', false);
+
+    $this->actingAs($member)
+        ->post(route('threads.store'), ['body' => 'Nej'])
+        ->assertForbidden();
+
+    $this->actingAs($member)
+        ->post(route('threads.replies.store', $thread), ['body' => 'Nej'])
+        ->assertForbidden();
+
+    expect(Thread::query()->where('body', 'Nej')->exists())->toBeFalse()
+        ->and($thread->replies()->exists())->toBeFalse();
+});
+
+it('keeps starting a thread and replying as separate grants', function () {
+    $author = User::factory()->withFeatures(Feature::CreateThreads)->create();
+    $thread = Thread::factory()->create();
+
+    $this->actingAs($author)
+        ->post(route('threads.store'), ['body' => 'Ny'])
+        ->assertRedirect();
+
+    $this->actingAs($author)
+        ->post(route('threads.replies.store', $thread), ['body' => 'Nej'])
+        ->assertForbidden();
+
+    $replier = User::factory()->withFeatures(Feature::ReplyInThreads)->create();
+
+    $this->actingAs($replier)
+        ->get(route('home'))
+        ->assertDontSee('threads-form', false);
+
+    $this->actingAs($replier)
+        ->get(route('threads.show', $thread))
+        ->assertSee('action="'.route('threads.replies.store', $thread).'"', false);
+
+    $this->actingAs($replier)
+        ->post(route('threads.store'), ['body' => 'Nej'])
+        ->assertForbidden();
+
+    $this->actingAs($replier)
+        ->post(route('threads.replies.store', $thread), ['body' => 'Ja'])
+        ->assertRedirect(route('threads.show', $thread));
 });

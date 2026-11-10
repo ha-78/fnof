@@ -33,6 +33,7 @@ return [
     'archived_notice' => 'This thread is archived.',
     'images_not_allowed' => 'Images are not allowed.',
     'removed_user' => 'Removed user',
+    'me' => 'Me',
     'back' => 'Back',
     'today' => 'today',
     'yesterday' => 'yesterday',

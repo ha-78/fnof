@@ -9,7 +9,8 @@ class StoreListRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', ItemList::class);
+        return $this->user()->can('create', ItemList::class)
+            && (! $this->boolean('is_public') || $this->user()->can('publish', ItemList::class));
     }
 
     protected function prepareForValidation(): void

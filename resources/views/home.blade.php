@@ -7,6 +7,7 @@
         </div>
 
         <div class="min-w-0">
+            @can('create', App\Models\Thread::class)
             <form method="POST" action="{{ route('threads.store') }}" class="threads-form space-y-3 rounded-3xl p-5">
                 @csrf
                 <input type="hidden" name="return_to" value="home">
@@ -22,6 +23,7 @@
                     <button type="submit" class="rounded-full bg-[var(--color-a-5)] px-4 py-2 text-sm font-medium text-[var(--color-a-1)] hover:opacity-90">{{ __('threads.publish') }}</button>
                 </div>
             </form>
+            @endcan
 
             <section class="mt-8" x-data="liveRegion" data-fragment="thread-list" data-version="{{ $version }}" data-version-url="{{ route('threads.version') }}">
                 <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">

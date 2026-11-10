@@ -28,7 +28,7 @@ class ListController extends Controller
 
     public function edit(Request $request, ListService $lists): View
     {
-        Gate::authorize('manage', ItemList::class);
+        Gate::authorize('create', ItemList::class);
 
         return view('lists.edit', [
             'lists' => $lists->forUser($request->user()),

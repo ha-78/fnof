@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Feature;
 use App\Enums\Role;
 use App\Models\Bookmark;
 use App\Models\Context;
@@ -136,7 +137,13 @@ it('saves a private bookmark for the signed-in user', function () {
 });
 
 it('saves a public bookmark when asked', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->withFeatures(Feature::PublishBookmarks)->create();
+
+    $this->actingAs($user)
+        ->get(route('bookmarks.index'))
+        ->assertSuccessful()
+        ->assertSee('name="is_public" value="1"', false)
+        ->assertDontSee('name="is_public" value="1" checked', false);
 
     $this->actingAs($user)
         ->post(route('bookmarks.store'), [
@@ -147,6 +154,26 @@ it('saves a public bookmark when asked', function () {
         ->assertRedirect(route('bookmarks.index'));
 
     expect(Bookmark::query()->sole()->is_public)->toBeTrue();
+});
+
+it('hides publishing a bookmark from a member without that grant', function () {
+    $member = User::factory()->create();
+
+    $this->actingAs($member)
+        ->get(route('bookmarks.index'))
+        ->assertSuccessful()
+        ->assertSee('bookmarks-form', false)
+        ->assertDontSee('name="is_public"', false);
+
+    $this->actingAs($member)
+        ->post(route('bookmarks.store'), [
+            'name' => 'Karta',
+            'url' => 'https://example.com/karta',
+            'is_public' => '1',
+        ])
+        ->assertForbidden();
+
+    expect(Bookmark::query()->count())->toBe(0);
 });
 
 it('requires a name and an http url', function () {

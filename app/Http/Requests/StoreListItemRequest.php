@@ -11,7 +11,8 @@ class StoreListItemRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', ListItem::class);
+        return $this->user()->can('create', ListItem::class)
+            && (! $this->boolean('item_is_public') || $this->user()->can('publish', ListItem::class));
     }
 
     protected function prepareForValidation(): void

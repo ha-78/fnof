@@ -70,7 +70,7 @@ class UserController extends Controller
                 fn (Role $role): bool => $role !== $user->role,
             ),
             'canAssignFeatures' => $request->user()->can('assignFeatures', $user),
-            'features' => Feature::cases(),
+            'featureGroups' => Feature::grouped(),
         ]);
     }
 

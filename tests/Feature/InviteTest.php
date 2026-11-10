@@ -81,7 +81,7 @@ it('creates a week-long invite link for the context', function (Role $role) {
         ->assertDontSee('ada@example.com');
 })->with([
     'reader' => Role::Reader,
-    'user' => Role::User,
+    'member' => Role::Member,
     'admin' => Role::Admin,
     'god' => Role::God,
 ]);
@@ -130,7 +130,7 @@ it('rejects an email that already belongs to a person or a pending invite', func
         ->post(route('invites.store'), [
             'name' => 'Ny igen',
             'email' => 'NY@example.com',
-            'role' => Role::User->value,
+            'role' => Role::Member->value,
         ])
         ->assertRedirect(route('users.index'))
         ->assertSessionHasErrors('email');
@@ -166,7 +166,7 @@ it('stops anyone except a god from creating or opening the invite form', functio
     $payload = [
         'name' => 'Ny',
         'email' => 'ny@example.com',
-        'role' => Role::User->value,
+        'role' => Role::Member->value,
     ];
 
     $this->post(route('invites.store'), $payload)->assertRedirect(route('login'));
@@ -184,7 +184,7 @@ it('lets a god remove a pending invite from the context', function () {
     $this->actingAs($god)->post(route('invites.store'), [
         'name' => 'Ny person',
         'email' => 'ny@example.com',
-        'role' => Role::User->value,
+        'role' => Role::Member->value,
     ])->assertRedirect(route('users.index'));
 
     $invite = Invite::query()->sole();

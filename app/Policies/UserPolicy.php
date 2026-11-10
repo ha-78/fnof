@@ -25,7 +25,7 @@ class UserPolicy
 
         return $actor->role === Role::Admin
             && $subject->role === Role::Reader
-            && $role === Role::User;
+            && $role === Role::Member;
     }
 
     public function assignFeatures(User $actor, User $subject): bool
@@ -34,6 +34,6 @@ class UserPolicy
             return false;
         }
 
-        return $subject->role === Role::User || $subject->role === Role::Reader;
+        return $subject->role === Role::Member;
     }
 }

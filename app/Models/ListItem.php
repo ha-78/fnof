@@ -16,7 +16,7 @@ class ListItem extends Model
     use HasFactory;
 
     protected $attributes = [
-        'is_public' => true,
+        'is_public' => false,
     ];
 
     /**

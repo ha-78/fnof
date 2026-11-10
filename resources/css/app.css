@@ -166,6 +166,22 @@ html[data-theme='dark'] .lists-table tbody tr {
     background-color: var(--color-c-3);
 }
 
+.meals-form {
+    border: 3px solid var(--color-f-2);
+}
+
+.meals-card {
+    background-color: var(--color-f-2);
+}
+
+html[data-theme='dark'] .meals-form {
+    border-color: var(--color-f-4);
+}
+
+html[data-theme='dark'] .meals-card {
+    background-color: var(--color-f-4);
+}
+
 .threads-form {
     border: 3px solid var(--color-a-2);
 }

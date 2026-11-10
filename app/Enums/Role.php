@@ -6,7 +6,7 @@ enum Role: string
 {
     case God = 'god';
     case Admin = 'admin';
-    case User = 'user';
+    case Member = 'member';
     case Reader = 'reader';
 
     public function label(): string
@@ -23,7 +23,7 @@ enum Role: string
     {
         return match ($this) {
             self::Reader => 1,
-            self::User => 2,
+            self::Member => 2,
             self::Admin => 3,
             self::God => 4,
         };

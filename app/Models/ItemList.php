@@ -19,7 +19,7 @@ class ItemList extends Model
     protected $table = 'lists';
 
     protected $attributes = [
-        'is_public' => true,
+        'is_public' => false,
     ];
 
     /**

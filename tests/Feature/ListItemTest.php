@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Feature;
 use App\Enums\Role;
 use App\Models\Context;
 use App\Models\ItemList;
@@ -19,7 +20,7 @@ it('asks guests to log in before list items', function () {
 });
 
 it('lists items by list name then item name', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->withFeatures(Feature::PublishListItems)->create();
     $clothes = ItemList::factory()->for($user)->private()->create([
         'name' => 'Kläder',
         'context_id' => $user->currentContextId(),
@@ -50,7 +51,8 @@ it('lists items by list name then item name', function () {
         ->assertSee('lists-form', false)
         ->assertSee('bg-[var(--color-c-5)]', false)
         ->assertDontSee('bg-form', false)
-        ->assertSee('name="item_is_public" value="1" checked', false)
+        ->assertSee('name="item_is_public" value="1"', false)
+        ->assertDontSee('name="item_is_public" value="1" checked', false)
         ->assertSee('Skor')
         ->assertSee('Lampa')
         ->assertSee('Vid fönstret')
@@ -154,7 +156,7 @@ it('saves a private item on a visible list', function () {
 });
 
 it('saves a public item with a description and estimate', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->withFeatures(Feature::PublishListItems)->create();
     $list = ItemList::factory()->for($user)->create([
         'context_id' => $user->currentContextId(),
     ]);
@@ -174,6 +176,28 @@ it('saves a public item with a description and estimate', function () {
     expect($item->description)->toBe('Vid fönstret')
         ->and($item->estimate)->toBe(250)
         ->and($item->is_public)->toBeTrue();
+});
+
+it('hides publishing an item from a member without that grant', function () {
+    $member = User::factory()->create();
+    $list = ItemList::factory()->for($member)->create([
+        'context_id' => $member->currentContextId(),
+    ]);
+
+    $this->actingAs($member)
+        ->get(route('lists.index'))
+        ->assertSuccessful()
+        ->assertDontSee('name="item_is_public"', false);
+
+    $this->actingAs($member)
+        ->post(route('lists.items.store'), [
+            'list_id' => $list->id,
+            'item_name' => 'Skor',
+            'item_is_public' => '1',
+        ])
+        ->assertForbidden();
+
+    expect(ListItem::query()->count())->toBe(0);
 });
 
 it('requires an item name, a whole estimate, and a visible list', function () {

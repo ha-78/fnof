@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Feature;
 use App\Enums\Role;
 use App\Models\Context;
 use App\Models\ItemList;
@@ -20,11 +21,11 @@ it('asks guests to log in before lists', function () {
         ->assertRedirect(route('login'));
 });
 
-it('shows the list editor only to an admin', function () {
+it('shows the list editor to a member and an admin', function () {
     $admin = User::factory()->withRole(Role::Admin)->create();
     $god = User::factory()->withRole(Role::God)->create();
-    $member = User::factory()->withRole(Role::User)->create();
-    $reader = User::factory()->create();
+    $member = User::factory()->withRole(Role::Member)->create();
+    $reader = User::factory()->withRole(Role::Reader)->create();
 
     $this->actingAs($admin)
         ->get(route('lists.index'))
@@ -36,7 +37,8 @@ it('shows the list editor only to an admin', function () {
         ->get(route('lists.edit'))
         ->assertSuccessful()
         ->assertSee(__('lists.edit'))
-        ->assertSee('name="is_public" value="1" checked', false);
+        ->assertSee('name="is_public" value="1"', false)
+        ->assertDontSee('name="is_public" value="1" checked', false);
 
     $this->actingAs($god)
         ->get(route('lists.edit'))
@@ -52,8 +54,15 @@ it('shows the list editor only to an admin', function () {
         ->assertForbidden();
 
     $this->actingAs($member)
+        ->get(route('lists.index'))
+        ->assertSuccessful()
+        ->assertSee('href="'.route('lists.edit').'"', false);
+
+    $this->actingAs($member)
         ->get(route('lists.edit'))
-        ->assertForbidden();
+        ->assertSuccessful()
+        ->assertDontSee('name="is_public" value="1"', false)
+        ->assertDontSee(__('lists.confirm_delete'), false);
 
     $this->actingAs($reader)
         ->post(route('lists.store'), [
@@ -90,7 +99,8 @@ it('lists a list by name', function () {
         ->assertSee(__('lists.edit'))
         ->assertSee(__('lists.created_by'))
         ->assertSee(__('lists.created_at'))
-        ->assertSee('name="is_public" value="1" checked', false)
+        ->assertSee('name="is_public" value="1"', false)
+        ->assertDontSee('name="is_public" value="1" checked', false)
         ->assertSee('Apelsin')
         ->assertSee('Zebra')
         ->assertSee($user->name)
@@ -143,6 +153,18 @@ it('hides private lists and lists from another context', function () {
         ->assertDontSee('Annanstans');
 });
 
+it('saves a private list for a member', function () {
+    $member = User::factory()->withRole(Role::Member)->create();
+
+    $this->actingAs($member)
+        ->post(route('lists.store'), [
+            'name' => 'Kläder',
+        ])
+        ->assertRedirect(route('lists.edit'));
+
+    expect(ItemList::query()->sole()->is_public)->toBeFalse();
+});
+
 it('saves a private list for the signed-in admin', function () {
     $user = User::factory()->withRole(Role::Admin)->create();
 
@@ -171,6 +193,38 @@ it('saves a public list when asked', function () {
     $user = User::factory()->withRole(Role::Admin)->create();
 
     $this->actingAs($user)
+        ->post(route('lists.store'), [
+            'name' => 'Möbler',
+            'is_public' => '1',
+        ])
+        ->assertRedirect(route('lists.edit'));
+
+    expect(ItemList::query()->sole()->is_public)->toBeTrue();
+});
+
+it('refuses to publish a list without that grant', function () {
+    $member = User::factory()->withRole(Role::Member)->create();
+
+    $this->actingAs($member)
+        ->post(route('lists.store'), [
+            'name' => 'Kläder',
+            'is_public' => '1',
+        ])
+        ->assertForbidden();
+
+    expect(ItemList::query()->count())->toBe(0);
+});
+
+it('lets a member with the grant publish a list', function () {
+    $member = User::factory()->withFeatures(Feature::PublishLists)->create();
+
+    $this->actingAs($member)
+        ->get(route('lists.edit'))
+        ->assertSuccessful()
+        ->assertSee('name="is_public" value="1"', false)
+        ->assertDontSee('name="is_public" value="1" checked', false);
+
+    $this->actingAs($member)
         ->post(route('lists.store'), [
             'name' => 'Möbler',
             'is_public' => '1',
@@ -215,7 +269,7 @@ it('deletes a list in this context', function () {
 it('refuses to delete a list outside this context or below admin', function () {
     $owner = User::factory()->create();
     $reader = User::factory()->create();
-    $member = User::factory()->withRole(Role::User)->create();
+    $member = User::factory()->withRole(Role::Member)->create();
     $admin = User::factory()->withRole(Role::Admin)->create();
     $elsewhere = Context::query()->create(['name' => 'Annan']);
     $list = ItemList::factory()->for($owner)->create([

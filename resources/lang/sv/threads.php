@@ -33,6 +33,7 @@ return [
     'archived_notice' => 'Den här tråden är arkiverad.',
     'images_not_allowed' => 'Bilder är inte tillåtna.',
     'removed_user' => 'Borttagen användare',
+    'me' => 'Jag',
     'back' => 'Tillbaka',
     'today' => 'idag',
     'yesterday' => 'igår',

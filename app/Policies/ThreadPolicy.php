@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Feature;
 use App\Models\Thread;
 use App\Models\User;
 use App\Policies\Concerns\ManagesOwnedRecord;
@@ -22,12 +23,12 @@ class ThreadPolicy
 
     public function create(User $actor): bool
     {
-        return true;
+        return $actor->canWrite() && $actor->allows(Feature::CreateThreads);
     }
 
     public function reply(User $actor, Thread $thread): bool
     {
-        return ! $thread->isArchived();
+        return $actor->canWrite() && $actor->allows(Feature::ReplyInThreads);
     }
 
     public function update(User $actor, Thread $thread): bool

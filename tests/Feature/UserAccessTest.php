@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Feature;
 use App\Enums\Role;
 use App\Models\Context;
 use App\Models\ContextUser;
@@ -101,17 +102,19 @@ it('lets a god assign any role', function (Role $target) {
     expect($reader->refresh()->role)->toBe($target);
 })->with([
     'reader' => Role::Reader,
-    'user' => Role::User,
+    'member' => Role::Member,
     'admin' => Role::Admin,
     'god' => Role::God,
 ]);
 
-it('lets an admin turn a reader into a user and clears permission overrides', function () {
+it('lets an admin turn a reader into a member and clears permission overrides', function () {
     $admin = User::factory()->withRole(Role::Admin)->create();
-    $reader = User::factory()->create();
+    $reader = User::factory()->withRole(Role::Reader)->create();
+
+    $membership = $reader->contextMembership();
 
     DB::table((new UserFeature)->getTable())->insert([
-        'user_id' => $reader->getKey(),
+        'context_user_id' => $membership->getKey(),
         'feature' => 'legacy',
         'granted' => true,
         'created_at' => now(),
@@ -119,11 +122,11 @@ it('lets an admin turn a reader into a user and clears permission overrides', fu
     ]);
 
     $this->actingAs($admin)
-        ->patch(route('users.role.update', $reader), ['role' => Role::User->value])
+        ->patch(route('users.role.update', $reader), ['role' => Role::Member->value])
         ->assertRedirect(route('users.show', $reader));
 
-    expect($reader->refresh()->role)->toBe(Role::User)
-        ->and(UserFeature::query()->whereBelongsTo($reader)->exists())->toBeFalse();
+    expect($reader->refresh()->role)->toBe(Role::Member)
+        ->and($membership->featureOverrides()->exists())->toBeFalse();
 });
 
 it('rejects role changes an admin is not allowed to make', function (Role $subjectRole, Role $target) {
@@ -138,8 +141,8 @@ it('rejects role changes an admin is not allowed to make', function (Role $subje
 })->with([
     'reader to god' => [Role::Reader, Role::God],
     'reader to admin' => [Role::Reader, Role::Admin],
-    'user to reader' => [Role::User, Role::Reader],
-    'admin to user' => [Role::Admin, Role::User],
+    'member to reader' => [Role::Member, Role::Reader],
+    'admin to member' => [Role::Admin, Role::Member],
     'god to reader' => [Role::God, Role::Reader],
 ]);
 
@@ -262,13 +265,53 @@ it('stops a reader from renaming the context', function () {
     expect($context->refresh()->name)->toBe($name);
 });
 
-it('lets an admin save permissions for a reader', function () {
+it('lets an admin save permissions for a member', function () {
     $admin = User::factory()->withRole(Role::Admin)->create();
-    $reader = User::factory()->create();
+    $member = User::factory()->create();
+
+    $features = collect(Feature::cases())
+        ->mapWithKeys(fn (Feature $feature): array => [$feature->value => '0'])
+        ->all();
+    $features[Feature::CreateThreads->value] = '1';
+
+    $this->actingAs($admin)
+        ->put(route('users.features.update', $member), ['features' => $features])
+        ->assertRedirect(route('users.show', $member))
+        ->assertSessionHas('status', __('users.features_updated'));
+
+    $override = $member->contextMembership()->featureOverrides()->sole();
+
+    expect($override->feature)->toBe(Feature::CreateThreads)
+        ->and($override->granted)->toBeTrue();
+});
+
+it('groups permissions by section on the user page', function () {
+    $admin = User::factory()->withRole(Role::Admin)->create();
+    $member = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->get(route('users.show', $member))
+        ->assertSuccessful()
+        ->assertSee(__('users.features.create-threads'), false)
+        ->assertSee(__('threads.threads'), false)
+        ->assertSee(__('welcome.calendar_title'), false)
+        ->assertSee(__('users.features.create-notifications'), false)
+        ->assertDontSee(__('users.no_permissions'), false);
+});
+
+it('hides permission toggles for a reader', function () {
+    $admin = User::factory()->withRole(Role::Admin)->create();
+    $reader = User::factory()->withRole(Role::Reader)->create();
+
+    $this->actingAs($admin)
+        ->get(route('users.show', $reader))
+        ->assertSuccessful()
+        ->assertDontSee(__('users.permissions'), false)
+        ->assertDontSee(__('users.features.create-threads'), false);
 
     $this->actingAs($admin)
         ->put(route('users.features.update', $reader), ['features' => []])
-        ->assertRedirect(route('users.show', $reader));
+        ->assertForbidden();
 });
 
 it('stops an admin from assigning permissions to a god', function () {

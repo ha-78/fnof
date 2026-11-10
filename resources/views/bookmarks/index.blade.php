@@ -3,6 +3,7 @@
 @section('content')
     <h1 class="text-2xl font-semibold tracking-tight">{{ __('bookmarks.bookmarks') }}</h1>
 
+    @can('create', App\Models\Bookmark::class)
     <form method="POST" action="{{ route('bookmarks.store') }}" class="bookmarks-form mt-8 space-y-3 rounded-3xl p-5">
         @csrf
 
@@ -20,15 +21,18 @@
             <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
         @enderror
 
-        <div class="flex flex-col items-end gap-3 md:flex-row md:items-center md:justify-between">
-            <label class="flex items-center gap-2 self-start text-sm">
-                <input type="checkbox" name="is_public" value="1" @checked(old('is_public'))>
-                {{ __('bookmarks.is_public') }}
-            </label>
+        <div class="flex flex-col items-end gap-3 md:flex-row md:items-center md:justify-end">
+            @can('publish', App\Models\Bookmark::class)
+                <label class="flex items-center gap-2 self-start text-sm md:mr-auto">
+                    <input type="checkbox" name="is_public" value="1" @checked(old('is_public'))>
+                    {{ __('bookmarks.is_public') }}
+                </label>
+            @endcan
 
             <button type="submit" class="rounded-full bg-[var(--color-e-5)] px-4 py-2 text-sm font-medium text-[var(--color-e-1)] hover:opacity-90">{{ __('bookmarks.save') }}</button>
         </div>
     </form>
+    @endcan
 
     @if ($bookmarks->isEmpty())
         <p class="bookmarks-surface mt-8 rounded-3xl px-4 py-3 text-sm text-ink">{{ __('bookmarks.empty') }}</p>

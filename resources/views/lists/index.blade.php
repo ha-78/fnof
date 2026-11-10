@@ -4,7 +4,7 @@
     <div class="flex items-start justify-between gap-3">
         <h1 class="text-2xl font-semibold tracking-tight">{{ __('lists.lists') }}</h1>
 
-        @can('manage', App\Models\ItemList::class)
+        @can('create', App\Models\ItemList::class)
             <a href="{{ route('lists.edit') }}" class="shrink-0 text-sm text-ink hover:underline">{{ __('lists.edit') }}</a>
         @endcan
     </div>
@@ -12,6 +12,7 @@
     <h2 class="mt-10 text-xl font-semibold tracking-tight">{{ __('lists.items') }}</h2>
 
     @if ($lists->isNotEmpty())
+        @can('create', App\Models\ListItem::class)
         <form method="POST" action="{{ route('lists.items.store') }}" class="lists-form mt-8 space-y-3 rounded-3xl p-5">
             @csrf
 
@@ -47,15 +48,18 @@
                 <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
             @enderror
 
-            <div class="flex flex-col items-end gap-3 md:flex-row md:items-center md:justify-between">
-                <label class="flex items-center gap-2 self-start text-sm">
-                    <input type="checkbox" name="item_is_public" value="1" @checked(old('item_is_public', true))>
-                    {{ __('lists.is_public') }}
-                </label>
+            <div class="flex flex-col items-end gap-3 md:flex-row md:items-center md:justify-end">
+                @can('publish', App\Models\ListItem::class)
+                    <label class="flex items-center gap-2 self-start text-sm md:mr-auto">
+                        <input type="checkbox" name="item_is_public" value="1" @checked(old('item_is_public'))>
+                        {{ __('lists.is_public') }}
+                    </label>
+                @endcan
 
                 <button type="submit" class="rounded-full bg-[var(--color-c-5)] px-4 py-2 text-sm font-medium text-[var(--color-c-1)] hover:opacity-90">{{ __('lists.save') }}</button>
             </div>
         </form>
+        @endcan
     @endif
 
     @if ($items->isEmpty())

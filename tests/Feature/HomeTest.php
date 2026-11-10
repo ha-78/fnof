@@ -1,9 +1,10 @@
 <?php
 
+use App\Enums\Feature;
 use App\Models\User;
 
 it('shows the signed-in user on the home page', function () {
-    $user = User::factory()->create(['name' => 'Hanna Anderberg']);
+    $user = User::factory()->withFeatures(Feature::CreateThreads)->create(['name' => 'Hanna Anderberg']);
 
     $this->actingAs($user)
         ->get(route('home'))

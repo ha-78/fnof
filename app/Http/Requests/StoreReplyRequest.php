@@ -13,7 +13,9 @@ class StoreReplyRequest extends FormRequest
     {
         $thread = $this->route('thread');
 
-        return $thread instanceof Thread && $this->user()->can('view', $thread);
+        return $thread instanceof Thread
+            && $this->user()->can('view', $thread)
+            && $this->user()->can('reply', $thread);
     }
 
     protected function prepareForValidation(): void

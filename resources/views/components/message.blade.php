@@ -2,6 +2,7 @@
 
 @php
     $writtenByCurrentUser = auth()->id() !== null && (int) $authorId === (int) auth()->id();
+    $authorName = $writtenByCurrentUser ? __('threads.me') : ($author ?? __('threads.removed_user'));
 @endphp
 
 <article {{ $attributes->class([
@@ -16,7 +17,7 @@
     @endif
 
     <p @class(['text-muted', 'text-sm' => ! $compact, 'text-xs' => $compact])>
-        {{ $author ?? __('threads.removed_user') }}
+        {{ $authorName }}
         <span aria-hidden="true"> · </span>
         <time datetime="{{ $postedAt->toAtomString() }}" data-posted @if ($relativeDate) data-relative @endif>{{ $relativeDate ? \App\Support\RelativeDate::label($postedAt) : $postedAt->timezone(config('app.timezone'))->format('Y-m-d H:i') }}</time>
     </p>
