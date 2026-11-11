@@ -64,6 +64,13 @@ enum Section: string
         };
     }
 
+    public function isMainPage(?string $routeName = null): bool
+    {
+        $home = $this->routeName();
+
+        return $home !== null && ($routeName ?? Route::currentRouteName()) === $home;
+    }
+
     public function label(): string
     {
         return match ($this) {

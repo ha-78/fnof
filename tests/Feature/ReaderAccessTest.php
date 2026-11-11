@@ -72,7 +72,8 @@ it('hides writing forms from a reader and refuses the posts', function () {
         ->assertSee('Kläder')
         ->assertSee('Skor')
         ->assertDontSee('lists-form', false)
-        ->assertDontSee('action="'.route('lists.items.destroy', $item).'"', false);
+        ->assertDontSee('action="'.route('lists.items.destroy', $item).'"', false)
+        ->assertDontSee('data-handle-url="'.route('lists.items.handle', $item).'"', false);
 
     $this->actingAs($reader)
         ->get(route('meals.index'))
@@ -132,6 +133,10 @@ it('hides writing forms from a reader and refuses the posts', function () {
 
     $this->actingAs($reader)
         ->delete(route('lists.items.destroy', $item))
+        ->assertForbidden();
+
+    $this->actingAs($reader)
+        ->patch(route('lists.items.handle', $item))
         ->assertForbidden();
 
     $this->actingAs($reader)

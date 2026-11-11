@@ -10,28 +10,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ListItemService
 {
-    /**
-     * @return Collection<int, ListItem>
-     */
-    public function forUser(User $user): Collection
-    {
-        $listName = ItemList::query()
-            ->select((new ItemList)->qualifyColumn('name'))
-            ->whereColumn(
-                (new ItemList)->qualifyColumn('id'),
-                (new ListItem)->qualifyColumn('list_id'),
-            )
-            ->limit(1);
-
-        return ListItem::query()
-            ->with('list')
-            ->visibleTo($user)
-            ->orderBy($listName)
-            ->orderBy((new ListItem)->qualifyColumn('name'))
-            ->orderBy((new ListItem)->qualifyColumn('id'))
-            ->get();
-    }
-
     public function create(User $actor, ItemList $list, string $name, ?string $description, ?int $estimate, bool $isPublic): ListItem
     {
         if (! $actor->can('create', [ListItem::class, $list])) {
@@ -43,6 +21,34 @@ class ListItemService
             'description' => $description,
             'estimate' => $estimate,
             'is_public' => $isPublic,
+        ]);
+    }
+
+    /**
+     * @return Collection<int, ListItem>
+     */
+    public function forList(User $user, ItemList $list): Collection
+    {
+        $item = new ListItem;
+
+        return $list->items()
+            ->with('handler')
+            ->visibleTo($user)
+            ->orderBy($item->qualifyColumn('handled_at'))
+            ->orderBy($item->qualifyColumn('name'))
+            ->orderBy($item->qualifyColumn('id'))
+            ->get();
+    }
+
+    public function handle(User $actor, ListItem $item): void
+    {
+        if (! $actor->can('handle', $item)) {
+            throw new AuthorizationException;
+        }
+
+        $item->update([
+            'handled_at' => now(),
+            'handled_by' => $actor->getKey(),
         ]);
     }
 

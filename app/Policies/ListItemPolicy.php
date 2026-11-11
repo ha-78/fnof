@@ -16,7 +16,7 @@ class ListItemPolicy
 
     public function view(User $actor, ListItem $item): bool
     {
-        if (! $actor->can('view', $item->list)) {
+        if (! $actor->can('view', $item->itemList)) {
             return false;
         }
 
@@ -24,7 +24,7 @@ class ListItemPolicy
             return true;
         }
 
-        return (int) $actor->getKey() === (int) $item->list->user_id;
+        return (int) $actor->getKey() === (int) $item->itemList->user_id;
     }
 
     public function create(User $actor, ?ItemList $list = null): bool
@@ -45,10 +45,17 @@ class ListItemPolicy
         return $actor->canWrite() && $actor->allows(Feature::PublishListItems);
     }
 
+    public function handle(User $actor, ListItem $item): bool
+    {
+        return $actor->canWrite()
+            && $item->handled_at === null
+            && $actor->can('view', $item);
+    }
+
     public function delete(User $actor, ListItem $item): bool
     {
         return $actor->canWrite()
-            && (int) $actor->getKey() === (int) $item->list->user_id
-            && (int) $item->list->context_id === $actor->currentContextId();
+            && (int) $actor->getKey() === (int) $item->itemList->user_id
+            && (int) $item->itemList->context_id === $actor->currentContextId();
     }
 }

@@ -7,7 +7,7 @@ return [
     'public' => 'Public',
     'created_by' => 'Created by',
     'created_at' => 'Created',
-    'is_public' => 'Public in this context',
+    'is_public' => 'Public',
     'save' => 'Save',
     'delete' => 'Delete list',
     'confirm_delete' => 'Delete this list?',
@@ -23,4 +23,8 @@ return [
     'confirm_delete_item' => 'Delete this item?',
     'item_created' => 'The item is saved.',
     'item_deleted' => 'The item is deleted.',
+    'handled_link' => 'Show all',
+    'handled_by' => 'Handled by',
+    'handled_at' => 'Handled',
+    'handle_item' => 'Mark as handled',
 ];

@@ -66,6 +66,11 @@ class ItemList extends Model
         return $this->hasMany(ListItem::class, 'list_id');
     }
 
+    public function hasEstimatedItem(): bool
+    {
+        return $this->items->contains(fn (ListItem $item): bool => $item->estimate !== null);
+    }
+
     /**
      * @return array<string, string>
      */

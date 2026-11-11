@@ -155,6 +155,69 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 
+    Alpine.data('handleItem', () => ({
+        leaving: false,
+        pending: false,
+        timer: null,
+
+        destroy() {
+            window.clearTimeout(this.timer);
+        },
+
+        async mark(event) {
+            if (this.pending || this.leaving) {
+                return;
+            }
+
+            const checkbox = event.target;
+            this.pending = true;
+            checkbox.disabled = true;
+
+            try {
+                const response = await fetch(this.$root.dataset.handleUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin',
+                });
+
+                if (response.status === 401 || response.status === 419) {
+                    window.location.reload();
+
+                    return;
+                }
+
+                if (! response.ok) {
+                    checkbox.checked = false;
+                    checkbox.disabled = false;
+                    this.pending = false;
+
+                    return;
+                }
+
+                this.timer = window.setTimeout(() => {
+                    this.leaving = true;
+                    this.timer = window.setTimeout(() => {
+                        const row = this.$root;
+                        const table = row.closest('[data-list-table]');
+                        row.remove();
+
+                        if (table && table.querySelector('tbody tr') === null) {
+                            table.querySelector('[data-empty]')?.classList.remove('hidden');
+                        }
+                    }, 700);
+                }, 2000);
+            } catch {
+                checkbox.checked = false;
+                checkbox.disabled = false;
+                this.pending = false;
+            }
+        },
+    }));
+
     Alpine.data('themeToggle', () => ({
         current: readThemePreference(),
 

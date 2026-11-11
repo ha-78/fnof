@@ -7,7 +7,7 @@ return [
     'public' => 'Publikt',
     'created_by' => 'Skapad av',
     'created_at' => 'Skapad',
-    'is_public' => 'Publikt i den här kontexten',
+    'is_public' => 'Publik',
     'save' => 'Spara',
     'delete' => 'Ta bort lista',
     'confirm_delete' => 'Ta bort den här listan?',
@@ -23,4 +23,8 @@ return [
     'confirm_delete_item' => 'Ta bort den här posten?',
     'item_created' => 'Posten är sparad.',
     'item_deleted' => 'Posten är borttagen.',
+    'handled_link' => 'Visa alla',
+    'handled_by' => 'Hanterad av',
+    'handled_at' => 'Hanterad',
+    'handle_item' => 'Markera som hanterad',
 ];

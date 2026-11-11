@@ -16,7 +16,10 @@ it('paints the header from the current section', function (string $routeName, st
         ->assertSee('--header-light: var(--color-'.$letter.'-3)', false)
         ->assertSee('--header-dark: var(--color-'.$letter.'-4)', false)
         ->assertSee('--canvas-dark: var(--color-'.$letter.'-5)', false)
-        ->assertSee('--field-dark: var(--color-'.$letter.'-1)', false);
+        ->assertSee('--field-dark: var(--color-'.$letter.'-1)', false)
+        ->assertSee('--section-mark-light: var(--color-'.$letter.'-5)', false)
+        ->assertSee('--section-mark-dark: var(--color-'.$letter.'-2)', false)
+        ->assertDontSee('M15.75 19.5 8.25 12l7.5-7.5', false);
 })->with([
     'start' => ['home', 'd'],
     'threads' => ['threads.index', 'a'],
@@ -33,7 +36,12 @@ it('paints a thread with the threads color', function () {
         ->assertSee('--header-light: var(--color-a-3)', false)
         ->assertSee('--header-dark: var(--color-a-4)', false)
         ->assertSee('--canvas-dark: var(--color-a-5)', false)
-        ->assertSee('--field-dark: var(--color-a-1)', false);
+        ->assertSee('--field-dark: var(--color-a-1)', false)
+        ->assertSee('href="'.route('threads.index').'"', false)
+        ->assertSee('M15.75 19.5 8.25 12l7.5-7.5', false)
+        ->assertSee('size-9', false)
+        ->assertSee('border-current', false)
+        ->assertDontSee('bg-[var(--section-mark)]', false);
 });
 
 it('paints list editing and user management with their section colors', function () {
@@ -42,12 +50,17 @@ it('paints list editing and user management with their section colors', function
     $this->actingAs($admin)
         ->get(route('lists.edit'))
         ->assertSuccessful()
-        ->assertSee('--header-light: var(--color-c-3)', false);
+        ->assertSee('--header-light: var(--color-c-3)', false)
+        ->assertSee('href="'.route('lists.index').'"', false)
+        ->assertSee('M15.75 19.5 8.25 12l7.5-7.5', false)
+        ->assertSee('border-current text-[var(--section-mark)]', false);
 
     $this->actingAs($admin)
         ->get(route('users.index'))
         ->assertSuccessful()
         ->assertSee('--header-light: var(--color-g-3)', false)
+        ->assertSee('href="'.route('account').'"', false)
+        ->assertSee('M15.75 19.5 8.25 12l7.5-7.5', false)
         ->assertSee('aria-current="page"', false)
         ->assertSee('background-color: var(--color-d-1)', false);
 });

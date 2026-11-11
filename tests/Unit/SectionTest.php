@@ -12,6 +12,15 @@ it('assigns each section a color letter', function () {
         ->and(Section::Personal->color())->toBe('g');
 });
 
+it('knows which route is the section home', function () {
+    expect(Section::Lists->isMainPage('lists.index'))->toBeTrue()
+        ->and(Section::Lists->isMainPage('lists.show'))->toBeFalse()
+        ->and(Section::Threads->isMainPage('threads.show'))->toBeFalse()
+        ->and(Section::Personal->isMainPage('account'))->toBeTrue()
+        ->and(Section::Personal->isMainPage('users.index'))->toBeFalse()
+        ->and(Section::Start->isMainPage('home'))->toBeFalse();
+});
+
 it('keeps threads, lists, bookmarks, meals, and account in the header', function () {
     expect(Section::header())->toBe([
         Section::Threads,
@@ -36,7 +45,9 @@ it('maps route names onto their section', function (string $name, Section $secti
     'thread' => ['threads.show', Section::Threads],
     'reply' => ['replies.destroy', Section::Threads],
     'lists' => ['lists.index', Section::Lists],
+    'list' => ['lists.show', Section::Lists],
     'list items' => ['lists.items.store', Section::Lists],
+    'handled list item' => ['lists.items.handle', Section::Lists],
     'bookmarks' => ['bookmarks.destroy', Section::Bookmarks],
     'meals' => ['meals.index', Section::Meals],
     'account' => ['account', Section::Personal],

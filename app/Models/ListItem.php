@@ -46,7 +46,7 @@ class ListItem extends Model
     /**
      * @return BelongsTo<ItemList, $this>
      */
-    public function list(): BelongsTo
+    public function itemList(): BelongsTo
     {
         return $this->belongsTo(ItemList::class, 'list_id');
     }

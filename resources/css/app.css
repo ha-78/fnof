@@ -74,6 +74,7 @@
     --message-other: var(--color-d-2);
     --calendar: var(--color-b-2);
     --calendar-ink: var(--color-b-4);
+    --section-mark: var(--section-mark-light, var(--color-d-5));
 }
 
 html[data-theme='dark'] {
@@ -104,6 +105,7 @@ html[data-theme='dark'] {
     --message-other: var(--color-d-4);
     --calendar: var(--color-b-4);
     --calendar-ink: var(--color-b-2);
+    --section-mark: var(--section-mark-dark, var(--color-d-2));
 }
 
 .data-table {

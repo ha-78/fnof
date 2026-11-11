@@ -15,14 +15,23 @@ use Illuminate\View\View;
 
 class ListController extends Controller
 {
-    public function index(Request $request, ListService $lists, ListItemService $items): View
+    public function index(Request $request, ListService $lists): View
     {
         Gate::authorize('viewAny', ItemList::class);
         Gate::authorize('viewAny', ListItem::class);
 
         return view('lists.index', [
-            'lists' => $lists->forUser($request->user()),
-            'items' => $items->forUser($request->user()),
+            'lists' => $lists->forUserWithItems($request->user()),
+        ]);
+    }
+
+    public function show(Request $request, ItemList $list, ListItemService $items): View
+    {
+        Gate::authorize('view', $list);
+
+        return view('lists.show', [
+            'list' => $list,
+            'items' => $items->forList($request->user(), $list),
         ]);
     }
 

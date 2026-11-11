@@ -34,9 +34,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/home', HomeController::class)->name('home');
 
     Route::get('/lists', [ListController::class, 'index'])->name('lists.index');
+    Route::get('/list/{list}', [ListController::class, 'show'])->name('lists.show');
     Route::get('/lists/edit', [ListController::class, 'edit'])->name('lists.edit');
     Route::post('/lists', [ListController::class, 'store'])->name('lists.store');
     Route::post('/lists/items', [ListItemController::class, 'store'])->name('lists.items.store');
+    Route::patch('/lists/items/{item}/handle', [ListItemController::class, 'handle'])->name('lists.items.handle');
     Route::delete('/lists/items/{item}', [ListItemController::class, 'destroy'])->name('lists.items.destroy');
     Route::delete('/lists/{list}', [ListController::class, 'destroy'])->name('lists.destroy');
 

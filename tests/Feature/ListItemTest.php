@@ -17,9 +17,15 @@ it('asks guests to log in before list items', function () {
 
     $this->delete(route('lists.items.destroy', $item))
         ->assertRedirect(route('login'));
+
+    $this->patch(route('lists.items.handle', $item))
+        ->assertRedirect(route('login'));
+
+    $this->get(route('lists.show', $item->itemList))
+        ->assertRedirect(route('login'));
 });
 
-it('lists items by list name then item name', function () {
+it('shows each list in its own table', function () {
     $user = User::factory()->withFeatures(Feature::PublishListItems)->create();
     $clothes = ItemList::factory()->for($user)->private()->create([
         'name' => 'Kläder',
@@ -28,6 +34,19 @@ it('lists items by list name then item name', function () {
     $furniture = ItemList::factory()->for($user)->private()->create([
         'name' => 'Möbler',
         'context_id' => $user->currentContextId(),
+    ]);
+    ItemList::factory()->for($user)->private()->create([
+        'name' => 'Väskor',
+        'context_id' => $user->currentContextId(),
+    ]);
+    $books = ItemList::factory()->for($user)->private()->create([
+        'name' => 'Böcker',
+        'context_id' => $user->currentContextId(),
+    ]);
+    ListItem::factory()->for($books)->private()->create([
+        'name' => 'Roman',
+        'description' => null,
+        'estimate' => null,
     ]);
     ListItem::factory()->for($furniture)->private()->create([
         'name' => 'Lampa',
@@ -39,30 +58,50 @@ it('lists items by list name then item name', function () {
         'description' => null,
         'estimate' => 0,
     ]);
+    ListItem::factory()->for($clothes)->private()->create([
+        'name' => 'Mössa',
+        'description' => null,
+        'estimate' => null,
+    ]);
 
     $response = $this->actingAs($user)
         ->get(route('lists.index'))
         ->assertSuccessful()
-        ->assertSee(__('lists.items'))
         ->assertSee(__('lists.description'))
         ->assertSee(__('lists.estimate'))
+        ->assertSee('<th class="px-4 py-3 text-center"><span class="sr-only">'.__('lists.public').'</span></th>', false)
+        ->assertDontSee('font-medium text-ink">'.__('lists.public'), false)
+        ->assertSee(__('lists.items_empty'))
         ->assertSee('lists-surface', false)
         ->assertSee('lists-table', false)
         ->assertSee('lists-form', false)
+        ->assertSee('x-data="handleItem"', false)
+        ->assertSee('href="'.route('lists.show', $clothes).'"', false)
+        ->assertSee(__('lists.handled_link'), false)
         ->assertSee('bg-[var(--color-c-5)]', false)
         ->assertDontSee('bg-form', false)
         ->assertSee('name="item_is_public" value="1"', false)
         ->assertDontSee('name="item_is_public" value="1" checked', false)
         ->assertSee('Skor')
+        ->assertSee('Mössa')
         ->assertSee('Lampa')
         ->assertSee('Vid fönstret')
         ->assertSee('>400</td>', false)
         ->assertSee('>0</td>', false)
-        ->assertDontSee('m4.5 12.75 6 6 9-13.5', false)
+        ->assertDontSee('M12 21a9.004', false)
         ->assertSee('m14.74 9-.346 9', false)
         ->assertSee(__('lists.confirm_delete_item'), false);
 
-    expect($response->getContent())->toMatch('/Skor.*Lampa/s');
+    $html = $response->getContent();
+    $empty = preg_quote(__('lists.items_empty'), '/');
+    $estimate = preg_quote(__('lists.estimate'), '/');
+    $publicHeader = '<th class="px-4 py-3 text-center"><span class="sr-only">'.__('lists.public').'</span></th>';
+
+    expect($html)->toMatch('/<h2[^>]*>Böcker<\/h2>.*Roman.*<h2[^>]*>Kläder<\/h2>.*Mössa.*Skor.*<h2[^>]*>Möbler<\/h2>.*Lampa.*<h2[^>]*>Väskor<\/h2>.*'.$empty.'/s')
+        ->and($html)->not->toMatch('/<h2[^>]*>Böcker<\/h2>(?:(?!<h2).)*'.$estimate.'/s')
+        ->and($html)->toMatch('/<h2[^>]*>Kläder<\/h2>(?:(?!<h2).)*'.$estimate.'/s')
+        ->and($html)->not->toMatch('/<h2[^>]*>Väskor<\/h2>(?:(?!<h2).)*'.$estimate.'/s')
+        ->and(substr_count($html, $publicHeader))->toBe(4);
 });
 
 it('hides private items and items from lists the user cannot see', function () {
@@ -97,6 +136,13 @@ it('hides private items and items from lists the user cannot see', function () {
     ListItem::factory()->for($otherContext)->create([
         'name' => 'Annan kontext',
     ]);
+    $open = ItemList::factory()->for($owner)->create([
+        'context_id' => $contextId,
+        'name' => 'Öppen',
+    ]);
+    ListItem::factory()->for($open)->private()->create([
+        'name' => 'Osynlig',
+    ]);
 
     $this->actingAs($reader)
         ->get(route('lists.index'))
@@ -105,10 +151,13 @@ it('hides private items and items from lists the user cannot see', function () {
         ->assertSee('Alla får se')
         ->assertSee('90')
         ->assertSee('Delad')
-        ->assertSee('m4.5 12.75 6 6 9-13.5', false)
+        ->assertSee('Öppen')
+        ->assertSee(__('lists.items_empty'))
+        ->assertSee('M12 21a9.004', false)
         ->assertDontSee('Hemlig post')
         ->assertDontSee('Hemlig')
         ->assertDontSee('Dold lista')
+        ->assertDontSee('Osynlig')
         ->assertDontSee('Annan kontext')
         ->assertDontSee('m14.74 9-.346 9', false)
         ->assertDontSee(__('lists.confirm_delete_item'), false);
@@ -118,6 +167,7 @@ it('hides private items and items from lists the user cannot see', function () {
         ->assertSuccessful()
         ->assertSee('Hemlig post')
         ->assertSee('Dold lista')
+        ->assertSee('Osynlig')
         ->assertDontSee('Annan kontext');
 });
 
@@ -287,4 +337,95 @@ it('removes items when the list is deleted', function () {
         ->assertRedirect(route('lists.edit'));
 
     expect(ListItem::query()->find($item->id))->toBeNull();
+});
+
+it('marks an item handled and keeps it on the list page', function () {
+    $this->travelTo('2026-11-11 09:00:00');
+
+    $user = User::factory()->create(['name' => 'Hanna']);
+    $list = ItemList::factory()->for($user)->private()->create([
+        'name' => 'Kläder',
+        'context_id' => $user->currentContextId(),
+    ]);
+    ListItem::factory()->for($list)->private()->create([
+        'name' => 'Zebra',
+    ]);
+    $done = ListItem::factory()->for($list)->private()->create([
+        'name' => 'Skor',
+        'description' => 'Vid dörren',
+        'estimate' => 100,
+    ]);
+
+    $this->actingAs($user)
+        ->patch(route('lists.items.handle', $done))
+        ->assertNoContent();
+
+    $done->refresh();
+
+    expect($done->handled_by)->toBe($user->id)
+        ->and($done->handled_at?->timezone(config('app.timezone'))->toDateString())->toBe('2026-11-11');
+
+    $this->actingAs($user)
+        ->get(route('lists.index'))
+        ->assertSuccessful()
+        ->assertSee('Zebra')
+        ->assertDontSee('Skor')
+        ->assertSee('href="'.route('lists.show', $list).'"', false);
+
+    $response = $this->actingAs($user)
+        ->get(route('lists.show', $list))
+        ->assertSuccessful()
+        ->assertSee(__('lists.handled_by'))
+        ->assertSee(__('lists.handled_at'))
+        ->assertSee('Zebra')
+        ->assertSee('Skor')
+        ->assertSee('Vid dörren')
+        ->assertSee('Hanna')
+        ->assertSee('2026-11-11')
+        ->assertSee('>100</td>', false)
+        ->assertSee('href="'.route('lists.index').'"', false);
+
+    expect($response->getContent())->toMatch('/Zebra.*Skor/s');
+
+    $this->actingAs($user)
+        ->patch(route('lists.items.handle', $done))
+        ->assertForbidden();
+});
+
+it('lets another member handle a public item', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $list = ItemList::factory()->for($owner)->create([
+        'context_id' => $owner->currentContextId(),
+    ]);
+    $item = ListItem::factory()->for($list)->create([
+        'name' => 'Lampa',
+    ]);
+
+    $this->actingAs($member)
+        ->patch(route('lists.items.handle', $item))
+        ->assertNoContent();
+
+    expect($item->fresh()->handled_by)->toBe($member->id);
+});
+
+it('refuses to handle an item on a list the user cannot see', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $list = ItemList::factory()->for($owner)->private()->create([
+        'context_id' => $owner->currentContextId(),
+    ]);
+    $item = ListItem::factory()->for($list)->create([
+        'name' => 'Skor',
+    ]);
+
+    $this->actingAs($member)
+        ->patch(route('lists.items.handle', $item))
+        ->assertForbidden();
+
+    $this->actingAs($member)
+        ->get(route('lists.show', $list))
+        ->assertForbidden();
+
+    expect($item->fresh()->handled_at)->toBeNull();
 });

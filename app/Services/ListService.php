@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\ItemList;
+use App\Models\ListItem;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ListService
 {
@@ -20,6 +22,23 @@ class ListService
             ->orderBy('name')
             ->orderBy('id')
             ->get();
+    }
+
+    /**
+     * @return Collection<int, ItemList>
+     */
+    public function forUserWithItems(User $user): Collection
+    {
+        $item = new ListItem;
+
+        return $this->forUser($user)->load([
+            'items' => function (HasMany $query) use ($user, $item): void {
+                $query->visibleTo($user)
+                    ->whereNull($item->qualifyColumn('handled_at'))
+                    ->orderBy($item->qualifyColumn('name'))
+                    ->orderBy($item->qualifyColumn('id'));
+            },
+        ]);
     }
 
     public function create(User $owner, string $name, bool $isPublic): ItemList

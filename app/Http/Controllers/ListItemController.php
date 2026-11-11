@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DeleteListItemRequest;
+use App\Http\Requests\HandleListItemRequest;
 use App\Http\Requests\StoreListItemRequest;
 use App\Models\ListItem;
 use App\Services\ListItemService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 
 class ListItemController extends Controller
 {
@@ -22,6 +24,13 @@ class ListItemController extends Controller
         );
 
         return to_route('lists.index')->with('status', __('lists.item_created'));
+    }
+
+    public function handle(HandleListItemRequest $request, ListItem $item, ListItemService $items): Response
+    {
+        $items->handle($request->user(), $item);
+
+        return response()->noContent();
     }
 
     public function destroy(DeleteListItemRequest $request, ListItem $item, ListItemService $items): RedirectResponse
