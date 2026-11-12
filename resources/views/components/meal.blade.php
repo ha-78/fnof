@@ -4,9 +4,7 @@
     @if ($meal->hasDetails())
         <button type="button" class="flex w-full items-start justify-between gap-3 text-left" @click="open = ! open" :aria-expanded="open.toString()" aria-controls="meal-{{ $meal->id }}-details">
             <span class="whitespace-pre-wrap font-medium">{{ $meal->name }}</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 size-5 shrink-0 transition-transform" :class="open ? 'rotate-180' : ''" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
+            <x-icon name="chevron-down" size="5" class="mt-0.5 shrink-0 transition-transform" ::class="open ? 'rotate-180' : ''" />
         </button>
 
         <div id="meal-{{ $meal->id }}-details" x-show="open" x-cloak class="mt-3 space-y-2 text-sm">

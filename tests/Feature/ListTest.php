@@ -106,7 +106,7 @@ it('lists a list by name', function () {
         ->assertSee($user->name)
         ->assertSee($createdAt->toDateString())
         ->assertDontSee('15:45')
-        ->assertDontSee('m4.5 12.75 6 6 9-13.5', false)
+        ->assertDontSee('M12 21a9.004', false)
         ->assertSee('m14.74 9-.346 9', false)
         ->assertSee(__('lists.confirm_delete'), false);
 
@@ -148,7 +148,7 @@ it('hides private lists and lists from another context', function () {
         ->assertSuccessful()
         ->assertSee('Delad')
         ->assertSee($owner->name)
-        ->assertSee('m4.5 12.75 6 6 9-13.5', false)
+        ->assertSee('M12 21a9.004', false)
         ->assertDontSee('Hemlig')
         ->assertDontSee('Annanstans');
 });
