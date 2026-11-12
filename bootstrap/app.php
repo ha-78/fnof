@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\AuthenticateDeviceRemember;
+use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,8 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
-            \App\Http\Middleware\AuthenticateDeviceRemember::class,
+            AuthenticateDeviceRemember::class,
         ]);
+
+        // Route auth is sorted ahead of appended web middleware, so a remembered
+        // device has to sign in before guest requests are redirected.
+        $middleware->prependToPriorityList(
+            AuthenticatesRequests::class,
+            AuthenticateDeviceRemember::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

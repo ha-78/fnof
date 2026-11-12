@@ -321,7 +321,7 @@ it('does not accept an invite after that email has an account', function () {
     ]);
 
     $invite = Invite::query()->sole();
-    User::factory()->create(['email' => 'ny@example.com']);
+    $existing = User::factory()->create(['email' => 'ny@example.com']);
 
     auth()->logout();
     $this->flushSession();
@@ -334,9 +334,8 @@ it('does not accept an invite after that email has an account', function () {
         ->assertRedirect($invite->link())
         ->assertSessionHasErrors('email');
 
-    $existing = User::query()->where('email', 'ny@example.com')->sole();
-
-    expect($existing->memberships)->toHaveCount(0);
+    expect($existing->refresh()->memberships)->toHaveCount(1)
+        ->and($existing->role)->toBe(Role::Member);
     $this->assertModelExists($invite);
 });
 
