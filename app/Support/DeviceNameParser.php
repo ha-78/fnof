@@ -8,8 +8,13 @@ class DeviceNameParser
 {
     public static function fromUserAgent(?string $userAgent): string
     {
+        return self::recognized($userAgent) ?? __('Unknown device');
+    }
+
+    public static function recognized(?string $userAgent): ?string
+    {
         if ($userAgent === null || $userAgent === '') {
-            return __('Unknown device');
+            return null;
         }
 
         $os = self::detectOs($userAgent);
@@ -27,7 +32,7 @@ class DeviceNameParser
             return $browser;
         }
 
-        return __('Unknown device');
+        return null;
     }
 
     private static function detectOs(string $userAgent): ?string

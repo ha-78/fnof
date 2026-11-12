@@ -23,8 +23,6 @@ class AuthenticateDeviceRemember
                 Auth::login($user);
                 $request->session()->regenerate();
             }
-        } else {
-            $this->deviceRememberService->touchAuthenticatedDevice($request);
         }
 
         $device = $this->deviceRememberService->findDeviceFromCookie($request);
@@ -35,6 +33,12 @@ class AuthenticateDeviceRemember
             view()->share('deviceColorTheme', $theme);
         }
 
-        return $next($request);
+        $response = $next($request);
+
+        if (Auth::check()) {
+            $this->deviceRememberService->touchAuthenticatedDevice($request);
+        }
+
+        return $response;
     }
 }

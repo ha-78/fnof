@@ -109,7 +109,12 @@ class DeviceRememberService
 
         if ($request->userAgent() !== null) {
             $attributes['user_agent'] = $request->userAgent();
-            $attributes['device_name'] = DeviceNameParser::fromUserAgent($request->userAgent());
+        }
+
+        $recognized = DeviceNameParser::recognized($request->userAgent());
+
+        if ($recognized !== null) {
+            $attributes['device_name'] = $recognized;
         }
 
         $theme = $this->optionalThemeFromRequest($request);

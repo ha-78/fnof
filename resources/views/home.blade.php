@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
+    <div class="mb-8">
+        <p class="text-sm font-medium text-muted">{{ __('home.welcome') }}</p>
+        <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ $user->name }}</h1>
+    </div>
+
     <div class="lg:grid lg:grid-cols-3 lg:items-start lg:gap-8">
         <div class="mb-8 min-w-0 lg:col-span-2 lg:mb-0">
             <x-calendar :today="$today" :tomorrow="$tomorrow" :days="$days" />

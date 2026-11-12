@@ -23,12 +23,14 @@ it('starts a thread from a message without a name', function () {
         ->and($thread->user_id)->toBe($user->id)
         ->and($thread->context_id)->toBe($user->currentContextId());
 
-    $this->actingAs($user)
+    $home = $this->actingAs($user)
         ->get(route('home'))
         ->assertSuccessful()
         ->assertSee('En kort tråd')
-        ->assertSee(__('threads.me'))
-        ->assertDontSee($user->name);
+        ->assertSee(__('threads.me'));
+
+    expect(str($home->getContent())->between('home-threads', '</section>')->value())
+        ->not->toContain($user->name);
 });
 
 it('returns to the start page after creating a thread there', function () {
@@ -327,12 +329,14 @@ it('shows the current user as Me on their thread and replies', function () {
         ->assertSee('Nils')
         ->assertDontSee('Hanna');
 
-    $this->actingAs($user)
+    $home = $this->actingAs($user)
         ->get(route('home'))
         ->assertSuccessful()
         ->assertSee(__('threads.me'))
-        ->assertSee('Nils')
-        ->assertDontSee('Hanna');
+        ->assertSee('Nils');
+
+    expect(str($home->getContent())->between('home-threads', '</section>')->value())
+        ->not->toContain('Hanna');
 
     $this->actingAs($other)
         ->get(route('threads.show', $thread))
