@@ -17,13 +17,22 @@
     </head>
     <body class="min-h-screen bg-canvas text-ink antialiased">
         <x-site-header>
-            <x-section-nav :current="$section" />
-        </x-site-header>
-        <main class="mx-auto max-w-5xl px-4 py-8">
             @if ($section->routeName() && ! $section->isMainPage())
-                <x-section-back :section="$section" />
+                <x-slot:leading>
+                    <x-section-back :section="$section" />
+                </x-slot:leading>
             @endif
-
+            <x-slot:title>
+                @hasSection('title')
+                    @yield('title')
+                @else
+                    {{ $section->label() }}
+                @endif
+            </x-slot:title>
+            <x-section-nav variant="top" :current="$section" />
+        </x-site-header>
+        <x-section-nav variant="tabs" :current="$section" />
+        <main class="mx-auto max-w-5xl px-4 pt-8 pb-24 sm:pb-8">
             @if (session('status'))
                 <p class="mb-6 rounded-3xl bg-status px-4 py-3 text-sm text-ink">{{ session('status') }}</p>
             @endif

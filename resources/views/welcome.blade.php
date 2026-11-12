@@ -3,8 +3,8 @@
 @section('header')
     <a
         href="{{ route('home') }}"
-        class="inline-flex rounded-full p-1.5 text-[var(--color-d-5)]"
-        style="background-color: var(--color-d-2)"
+        data-color="{{ \App\Enums\Section::Start->color() }}"
+        class="grid size-9 place-items-center rounded-full bg-tonal text-ink"
         aria-label="{{ __('home.title') }}"
     >
         <x-section-icon :section="\App\Enums\Section::Start" />

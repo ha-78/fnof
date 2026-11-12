@@ -19,6 +19,8 @@ it('paints the header from the current section', function (string $routeName, st
         ->assertDontSee('style="--', false)
         ->assertSee('href="'.route('home').'"', false)
         ->assertSee('m2.25 12 8.954-8.955', false)
+        ->assertSee('h-14 bg-bar', false)
+        ->assertSee('text-[11px]', false)
         ->assertDontSee(__('layout.brand'), false)
         ->assertDontSee('M15.75 19.5 8.25 12l7.5-7.5', false);
 })->with([
@@ -39,8 +41,8 @@ it('paints a thread with the threads color', function () {
         ->assertDontSee('--header-light', false)
         ->assertSee('href="'.route('threads.index').'"', false)
         ->assertSee('M15.75 19.5 8.25 12l7.5-7.5', false)
-        ->assertSee('size-9', false)
-        ->assertSee('border-current', false)
+        ->assertSee('h-14 bg-bar', false)
+        ->assertDontSee('border-current', false)
         ->assertDontSee('bg-[var(--section-mark)]', false);
 });
 
@@ -54,7 +56,7 @@ it('paints list editing and user management with their section colors', function
         ->assertSee('data-color="c"', false)
         ->assertSee('href="'.route('lists.index').'"', false)
         ->assertSee('M15.75 19.5 8.25 12l7.5-7.5', false)
-        ->assertSee('border-current text-[var(--section-mark)]', false);
+        ->assertDontSee('border-current', false);
 
     $this->actingAs($admin)
         ->get(route('users.index'))
@@ -64,49 +66,55 @@ it('paints list editing and user management with their section colors', function
         ->assertSee('href="'.route('account').'"', false)
         ->assertSee('M15.75 19.5 8.25 12l7.5-7.5', false)
         ->assertSee('aria-current="page"', false)
-        ->assertSee('background-color: var(--color-d-1)', false);
+        ->assertSee('bg-white text-field-ink', false);
 });
 
 it('marks the current section icon and leaves the others in their own color', function () {
-    $this->actingAs(User::factory()->create())
+    $lists = $this->actingAs(User::factory()->create())
         ->get(route('lists.index'))
         ->assertSuccessful()
-        ->assertSee('background-color: var(--color-d-1)', false)
-        ->assertSee('background-color: var(--color-d-2)', false)
-        ->assertSee('background-color: var(--color-a-2)', false)
-        ->assertSee('background-color: var(--color-e-2)', false)
-        ->assertSee('background-color: var(--color-f-2)', false)
-        ->assertSee('background-color: var(--color-g-2)', false)
-        ->assertDontSee('background-color: var(--color-c-2)', false)
-        ->assertSee('aria-current="page"', false);
+        ->assertSee('bg-white text-field-ink', false)
+        ->assertSee('aria-current="page"', false)
+        ->getContent();
 
-    $this->actingAs(User::factory()->create())
+    expect(substr_count($lists, 'data-color="c"'))->toBe(1)
+        ->and(substr_count($lists, 'data-color="d"'))->toBe(2)
+        ->and(substr_count($lists, 'data-color="a"'))->toBe(2)
+        ->and(substr_count($lists, 'data-color="e"'))->toBe(2)
+        ->and(substr_count($lists, 'data-color="f"'))->toBe(2)
+        ->and(substr_count($lists, 'data-color="g"'))->toBe(2);
+
+    $threads = $this->actingAs(User::factory()->create())
         ->get(route('threads.index'))
         ->assertSuccessful()
         ->assertSee('href="'.route('threads.index').'"', false)
         ->assertSee('href="'.route('home').'"', false)
-        ->assertSee('background-color: var(--color-d-1)', false)
-        ->assertSee('background-color: var(--color-d-2)', false)
-        ->assertSee('background-color: var(--color-c-2)', false)
-        ->assertSee('background-color: var(--color-e-2)', false)
-        ->assertSee('background-color: var(--color-f-2)', false)
-        ->assertSee('background-color: var(--color-g-2)', false)
-        ->assertDontSee('background-color: var(--color-a-2)', false)
+        ->assertSee('bg-white text-field-ink', false)
         ->assertSee('M20.25 8.511c.884.284', false)
-        ->assertSee('aria-current="page"', false);
+        ->assertSee('aria-current="page"', false)
+        ->getContent();
 
-    $this->actingAs(User::factory()->create())
+    expect(substr_count($threads, 'data-color="a"'))->toBe(1)
+        ->and(substr_count($threads, 'data-color="d"'))->toBe(2)
+        ->and(substr_count($threads, 'data-color="c"'))->toBe(2)
+        ->and(substr_count($threads, 'data-color="e"'))->toBe(2)
+        ->and(substr_count($threads, 'data-color="f"'))->toBe(2)
+        ->and(substr_count($threads, 'data-color="g"'))->toBe(2);
+
+    $home = $this->actingAs(User::factory()->create())
         ->get(route('home'))
         ->assertSuccessful()
-        ->assertSee('background-color: var(--color-d-1)', false)
-        ->assertSee('background-color: var(--color-a-2)', false)
-        ->assertSee('background-color: var(--color-c-2)', false)
-        ->assertSee('background-color: var(--color-e-2)', false)
-        ->assertSee('background-color: var(--color-f-2)', false)
-        ->assertSee('background-color: var(--color-g-2)', false)
-        ->assertDontSee('background-color: var(--color-d-2)', false)
+        ->assertSee('bg-white text-field-ink', false)
         ->assertSee('aria-label="'.__('home.title').'"', false)
-        ->assertSee('aria-current="page"', false);
+        ->assertSee('aria-current="page"', false)
+        ->getContent();
+
+    expect(substr_count($home, 'data-color="d"'))->toBe(1)
+        ->and(substr_count($home, 'data-color="a"'))->toBe(2)
+        ->and(substr_count($home, 'data-color="c"'))->toBe(2)
+        ->and(substr_count($home, 'data-color="e"'))->toBe(2)
+        ->and(substr_count($home, 'data-color="f"'))->toBe(2)
+        ->and(substr_count($home, 'data-color="g"'))->toBe(2);
 });
 
 it('puts a start-colored home icon on the welcome header', function () {
@@ -114,7 +122,7 @@ it('puts a start-colored home icon on the welcome header', function () {
         ->assertSuccessful()
         ->assertDontSee(__('layout.brand'), false)
         ->assertSee('href="'.route('home').'"', false)
-        ->assertSee('background-color: var(--color-d-2)', false)
+        ->assertSee('bg-tonal', false)
         ->assertSee('m2.25 12 8.954-8.955', false)
         ->assertSee('href="'.route('login').'"', false)
         ->assertDontSee('M20.25 8.511c.884.284', false);
@@ -124,7 +132,7 @@ it('puts a start-colored home icon on the welcome header', function () {
         ->assertSuccessful()
         ->assertDontSee(__('layout.brand'), false)
         ->assertSee('href="'.route('home').'"', false)
-        ->assertSee('background-color: var(--color-d-2)', false)
+        ->assertSee('bg-tonal', false)
         ->assertSee('aria-label="'.__('home.title').'"', false)
         ->assertDontSee('hover:underline">'.__('home.title'), false)
         ->assertDontSee('href="'.route('login').'"', false);
