@@ -63,7 +63,7 @@ it('asks guests to log in before a thread', function () {
         ->assertRedirect(route('login'));
 
     $this->getJson(route('threads.version'))
-        ->assertRedirect(route('login'));
+        ->assertUnauthorized();
 });
 
 it('shows thread dates as today, yesterday, or days ago', function () {

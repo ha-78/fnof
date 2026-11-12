@@ -1,7 +1,7 @@
 @extends('layouts.front')
 
 @section('content')
-    <div class="mx-auto max-w-md rounded-3xl bg-rose p-8 text-ink">
+    <div class="mx-auto max-w-md rounded-3xl bg-panel p-8 text-ink">
         <h1 class="text-center text-2xl font-semibold tracking-tight">{{ __('users.invites.accept_heading') }}</h1>
         <p class="mt-3 text-center text-lg font-medium">{{ $invite->name }}</p>
         <p class="mt-2 text-center text-sm text-muted">{{ __('users.invites.accept_intro', ['context' => $invite->context->name]) }}</p>

@@ -5,7 +5,7 @@
 
     <h1 class="mt-4 text-2xl font-semibold tracking-tight">{{ $user->name }}</h1>
     <p class="mt-2 text-muted">{{ $user->email }}</p>
-    <p class="mt-4 inline-flex rounded-full bg-sun px-3 py-1 text-sm text-ink">{{ __('users.role') }}: {{ $user->role->label() }}</p>
+    <p class="mt-4 inline-flex rounded-full bg-badge px-3 py-1 text-sm text-ink">{{ __('users.role') }}: {{ $user->role->label() }}</p>
 
     @if ($canChangeRole)
         <form method="POST" action="{{ route('users.role.update', $user) }}" class="account-form mt-6 space-y-3 rounded-3xl p-5">

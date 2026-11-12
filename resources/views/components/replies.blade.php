@@ -2,7 +2,7 @@
 
 <div data-archived="{{ $thread->isArchived() ? '1' : '0' }}">
     @if ($thread->isArchived())
-        <p class="mt-3 inline-flex rounded-full bg-lilac px-3 py-1 text-xs text-ink">{{ __('threads.archived_notice') }}</p>
+        <p class="mt-3 inline-flex rounded-full bg-notice px-3 py-1 text-xs text-ink">{{ __('threads.archived_notice') }}</p>
     @endif
 
     @if ($thread->replies->isNotEmpty())

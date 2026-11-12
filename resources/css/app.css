@@ -122,11 +122,13 @@
     --accent: var(--s-4);
     --field: var(--color-white);
     --field-ink: var(--color-d-5);
+    --header: var(--s-3, var(--color-d-3));
+    --section-mark: var(--s-5, var(--color-d-5));
 }
 
 html[data-theme='dark'],
 html[data-theme='dark'] [data-color] {
-    --canvas: var(--s-5, var(--canvas-dark, var(--color-d-5)));
+    --canvas: var(--s-5, var(--color-d-5));
     --ink: var(--color-d-1);
     --muted: var(--color-d-2);
     --line: color-mix(in srgb, var(--color-white) 10%, transparent);
@@ -138,17 +140,17 @@ html[data-theme='dark'] [data-color] {
     --tonal: var(--s-4);
     --tonal-ink: var(--s-1);
     --accent: var(--s-2);
-    --field: var(--s-1, var(--field-dark, var(--color-d-1)));
+    --field: var(--s-1, var(--color-d-1));
     --field-ink: var(--color-d-5);
+    --header: var(--s-4, var(--color-d-4));
+    --section-mark: var(--s-2, var(--color-d-2));
 }
 
 :root {
     color-scheme: light;
-    --header: var(--header-light, var(--color-d-3));
-    --sun: var(--color-c-4);
-    --mint: var(--color-a-2);
-    --lilac: var(--color-b-2);
-    --rose: var(--color-c-2);
+    --badge: var(--color-c-4);
+    --notice: var(--color-b-2);
+    --panel: var(--color-c-2);
     --form: var(--color-d-2);
     --button: var(--color-b-3);
     --button-ink: var(--color-d-5);
@@ -166,16 +168,13 @@ html[data-theme='dark'] [data-color] {
     --message-other: var(--color-d-2);
     --calendar: var(--color-b-2);
     --calendar-ink: var(--color-b-4);
-    --section-mark: var(--section-mark-light, var(--color-d-5));
 }
 
 html[data-theme='dark'] {
     color-scheme: dark;
-    --header: var(--header-dark, var(--color-d-4));
-    --sun: var(--color-a-4);
-    --mint: var(--color-d-4);
-    --lilac: var(--color-b-5);
-    --rose: var(--color-a-5);
+    --badge: var(--color-a-4);
+    --notice: var(--color-b-5);
+    --panel: var(--color-a-5);
     --form: var(--color-a-4);
     --button: var(--color-b-4);
     --button-ink: var(--color-d-1);
@@ -193,7 +192,6 @@ html[data-theme='dark'] {
     --message-other: var(--color-d-4);
     --calendar: var(--color-b-4);
     --calendar-ink: var(--color-b-2);
-    --section-mark: var(--section-mark-dark, var(--color-d-2));
 }
 
 .data-table {
@@ -375,10 +373,9 @@ html[data-theme='dark'] :is(input, textarea, select):not([type='checkbox']):not(
     --color-tonal-ink: var(--tonal-ink);
     --color-accent: var(--accent);
     --color-field-ink: var(--field-ink);
-    --color-sun: var(--sun);
-    --color-mint: var(--mint);
-    --color-lilac: var(--lilac);
-    --color-rose: var(--rose);
+    --color-badge: var(--badge);
+    --color-notice: var(--notice);
+    --color-panel: var(--panel);
     --color-form: var(--form);
     --color-field: var(--field);
     --color-button: var(--button);

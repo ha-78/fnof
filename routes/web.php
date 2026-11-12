@@ -67,7 +67,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/account', [UserController::class, 'account'])->name('account');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/invites', [InviteController::class, 'store'])->name('invites.store');
-    Route::delete('/invites/{invite}', [InviteController::class, 'destroy'])->name('invites.destroy');
+    Route::delete('/invites/{invite}', [InviteController::class, 'destroy'])
+        ->whereNumber('invite')
+        ->name('invites.destroy');
     Route::patch('/contexts/{context}', [ContextController::class, 'update'])->name('contexts.update');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role.update');

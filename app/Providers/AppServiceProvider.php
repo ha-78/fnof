@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
             Gate::define($feature->value, fn (User $user): bool => $user->allows($feature));
         }
 
-        View::composer('layouts.app', function (ViewTemplate $view): void {
+        View::composer(['layouts.app', 'layouts.front'], function (ViewTemplate $view): void {
             $view->with('section', Section::current());
         });
     }
