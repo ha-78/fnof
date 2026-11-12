@@ -6,7 +6,6 @@ use App\Models\Invite;
 use App\Models\User;
 use App\Models\UserRememberDevice;
 use App\Services\DeviceRememberService;
-use Illuminate\Cookie\CookieValuePrefix;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -254,7 +253,7 @@ it('lets the invited person choose a password and stay signed in on the device',
     $this->assertAuthenticatedAs($user);
     $this->assertModelMissing($invite);
 
-    $plain = CookieValuePrefix::remove(decrypt($response->getCookie($cookieName)->getValue(), false));
+    $plain = $response->getCookie($cookieName)->getValue();
     $device = UserRememberDevice::query()->whereBelongsTo($user)->first();
 
     expect($user->role)->toBe(Role::Admin)

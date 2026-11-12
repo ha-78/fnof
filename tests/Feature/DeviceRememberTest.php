@@ -4,7 +4,6 @@ use App\Models\User;
 use App\Models\UserRememberDevice;
 use App\Services\DeviceRememberService;
 use App\Support\ColorTheme;
-use Illuminate\Cookie\CookieValuePrefix;
 use Illuminate\Support\Str;
 
 it('logs a user in with a device cookie and removes that device on logout', function () {
@@ -24,7 +23,7 @@ it('logs a user in with a device cookie and removes that device on logout', func
     $login->assertCookie($cookieName);
 
     $device = UserRememberDevice::query()->whereBelongsTo($user)->first();
-    $plain = CookieValuePrefix::remove(decrypt($login->getCookie($cookieName)->getValue(), false));
+    $plain = $login->getCookie($cookieName)->getValue();
 
     expect($device)->not->toBeNull()
         ->and($device->color_theme)->toBe('dark')

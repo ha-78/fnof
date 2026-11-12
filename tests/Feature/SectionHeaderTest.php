@@ -19,6 +19,9 @@ it('paints the header from the current section', function (string $routeName, st
         ->assertSee('--field-dark: var(--color-'.$letter.'-1)', false)
         ->assertSee('--section-mark-light: var(--color-'.$letter.'-5)', false)
         ->assertSee('--section-mark-dark: var(--color-'.$letter.'-2)', false)
+        ->assertSee('href="'.route('home').'"', false)
+        ->assertSee('m2.25 12 8.954-8.955', false)
+        ->assertDontSee(__('layout.brand'), false)
         ->assertDontSee('M15.75 19.5 8.25 12l7.5-7.5', false);
 })->with([
     'start' => ['home', 'd'],
@@ -70,6 +73,7 @@ it('marks the current section icon and leaves the others in their own color', fu
         ->get(route('lists.index'))
         ->assertSuccessful()
         ->assertSee('background-color: var(--color-d-1)', false)
+        ->assertSee('background-color: var(--color-d-2)', false)
         ->assertSee('background-color: var(--color-a-2)', false)
         ->assertSee('background-color: var(--color-e-2)', false)
         ->assertSee('background-color: var(--color-f-2)', false)
@@ -81,7 +85,9 @@ it('marks the current section icon and leaves the others in their own color', fu
         ->get(route('threads.index'))
         ->assertSuccessful()
         ->assertSee('href="'.route('threads.index').'"', false)
+        ->assertSee('href="'.route('home').'"', false)
         ->assertSee('background-color: var(--color-d-1)', false)
+        ->assertSee('background-color: var(--color-d-2)', false)
         ->assertSee('background-color: var(--color-c-2)', false)
         ->assertSee('background-color: var(--color-e-2)', false)
         ->assertSee('background-color: var(--color-f-2)', false)
@@ -93,13 +99,36 @@ it('marks the current section icon and leaves the others in their own color', fu
     $this->actingAs(User::factory()->create())
         ->get(route('home'))
         ->assertSuccessful()
+        ->assertSee('background-color: var(--color-d-1)', false)
         ->assertSee('background-color: var(--color-a-2)', false)
         ->assertSee('background-color: var(--color-c-2)', false)
         ->assertSee('background-color: var(--color-e-2)', false)
         ->assertSee('background-color: var(--color-f-2)', false)
         ->assertSee('background-color: var(--color-g-2)', false)
-        ->assertDontSee('background-color: var(--color-d-1)', false)
-        ->assertDontSee('aria-current="page"', false);
+        ->assertDontSee('background-color: var(--color-d-2)', false)
+        ->assertSee('aria-label="'.__('home.title').'"', false)
+        ->assertSee('aria-current="page"', false);
+});
+
+it('puts a start-colored home icon on the welcome header', function () {
+    $this->get('/')
+        ->assertSuccessful()
+        ->assertDontSee(__('layout.brand'), false)
+        ->assertSee('href="'.route('home').'"', false)
+        ->assertSee('background-color: var(--color-d-2)', false)
+        ->assertSee('m2.25 12 8.954-8.955', false)
+        ->assertSee('href="'.route('login').'"', false)
+        ->assertDontSee('M20.25 8.511c.884.284', false);
+
+    $this->actingAs(User::factory()->create())
+        ->get('/')
+        ->assertSuccessful()
+        ->assertDontSee(__('layout.brand'), false)
+        ->assertSee('href="'.route('home').'"', false)
+        ->assertSee('background-color: var(--color-d-2)', false)
+        ->assertSee('aria-label="'.__('home.title').'"', false)
+        ->assertDontSee('hover:underline">'.__('home.title'), false)
+        ->assertDontSee('href="'.route('login').'"', false);
 });
 
 it('leaves the login header on the shared fallback', function () {
@@ -108,5 +137,6 @@ it('leaves the login header on the shared fallback', function () {
         ->assertDontSee('--header-light', false)
         ->assertSee('login-panel', false)
         ->assertSee('login-button', false)
+        ->assertSee(__('layout.brand'), false)
         ->assertDontSee('bg-rose', false);
 });

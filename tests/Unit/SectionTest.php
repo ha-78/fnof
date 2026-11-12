@@ -18,11 +18,12 @@ it('knows which route is the section home', function () {
         ->and(Section::Threads->isMainPage('threads.show'))->toBeFalse()
         ->and(Section::Personal->isMainPage('account'))->toBeTrue()
         ->and(Section::Personal->isMainPage('users.index'))->toBeFalse()
-        ->and(Section::Start->isMainPage('home'))->toBeFalse();
+        ->and(Section::Start->isMainPage('home'))->toBeTrue();
 });
 
-it('keeps threads, lists, bookmarks, meals, and account in the header', function () {
+it('keeps start, threads, lists, bookmarks, meals, and account in the header', function () {
     expect(Section::header())->toBe([
+        Section::Start,
         Section::Threads,
         Section::Lists,
         Section::Bookmarks,

@@ -9,8 +9,6 @@
         data-version="{{ $version }}"
         data-version-url="{{ route('threads.version') }}"
     >
-        <a href="{{ $thread->isArchived() ? route('home', ['archived' => 1]) : route('home') }}" x-bind:href="archived ? '{{ route('home', ['archived' => 1]) }}' : '{{ route('home') }}'" class="inline-flex rounded-full bg-pill px-3 py-1 text-sm text-ink hover:bg-pill-active">{{ __('threads.back') }}</a>
-
         <div class="mt-4 flex flex-col-reverse gap-4 sm:flex-row sm:items-start sm:gap-8">
             <div class="min-w-0 flex-1">
                 @if (filled($thread->title))

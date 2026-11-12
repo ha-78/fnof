@@ -9,7 +9,7 @@
         <x-theme-script />
     </head>
     <body class="min-h-screen bg-canvas text-ink antialiased">
-        <x-site-header :href="route('home')">
+        <x-site-header>
             <x-section-nav :current="$section" />
         </x-site-header>
         <main class="mx-auto max-w-5xl px-4 py-8">

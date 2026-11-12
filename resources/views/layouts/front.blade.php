@@ -9,7 +9,13 @@
         <x-theme-script />
     </head>
     <body class="min-h-screen bg-canvas text-ink antialiased">
-        <x-site-header :href="url('/')" />
+        @hasSection('header')
+            <x-site-header>
+                @yield('header')
+            </x-site-header>
+        @else
+            <x-site-header :href="url('/')" />
+        @endif
         <main class="mx-auto max-w-5xl px-4 py-8">
             @yield('content')
         </main>

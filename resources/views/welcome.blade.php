@@ -1,14 +1,23 @@
 @extends('layouts.front')
 
+@section('header')
+    <a
+        href="{{ route('home') }}"
+        class="inline-flex rounded-full p-1.5 text-[var(--color-d-5)]"
+        style="background-color: var(--color-d-2)"
+        aria-label="{{ __('home.title') }}"
+    >
+        <x-section-icon :section="\App\Enums\Section::Start" />
+    </a>
+@endsection
+
 @section('content')
     <div class="mx-auto max-w-3xl">
-        <div class="flex justify-end">
-            @auth
-                <a href="{{ route('home') }}" class="text-sm text-ink hover:underline">{{ __('home.title') }}</a>
-            @else
+        @guest
+            <div class="flex justify-end">
                 <a href="{{ route('login') }}" class="text-sm text-ink hover:underline">{{ __('auth_pages.login') }}</a>
-            @endauth
-        </div>
+            </div>
+        @endguest
 
         <h1 class="mt-8 text-center text-2xl font-semibold tracking-tight">{{ __('home.welcome') }}</h1>
         <p class="mx-auto mt-3 max-w-xl text-center text-sm leading-6 text-muted">{{ __('welcome.intro') }}</p>

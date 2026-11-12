@@ -47,7 +47,7 @@ enum Section: string
     public function inHeader(): bool
     {
         return match ($this) {
-            self::Threads, self::Lists, self::Bookmarks, self::Meals, self::Personal => true,
+            self::Start, self::Threads, self::Lists, self::Bookmarks, self::Meals, self::Personal => true,
             default => false,
         };
     }
@@ -55,6 +55,7 @@ enum Section: string
     public function routeName(): ?string
     {
         return match ($this) {
+            self::Start => 'home',
             self::Threads => 'threads.index',
             self::Lists => 'lists.index',
             self::Bookmarks => 'bookmarks.index',
@@ -74,6 +75,7 @@ enum Section: string
     public function label(): string
     {
         return match ($this) {
+            self::Start => __('home.title'),
             self::Threads => __('threads.threads'),
             self::Lists => __('lists.lists'),
             self::Bookmarks => __('bookmarks.bookmarks'),

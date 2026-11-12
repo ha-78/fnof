@@ -2,7 +2,7 @@
 
 return [
     'meals' => 'Måltider',
-    'prompt' => 'Önska nåt du tycker vi bort äta snart!',
+    'prompt' => 'Önska nåt du tycker vi borde äta snart!',
     'name' => 'Namn',
     'recipe_link' => 'Receptlänk',
     'comment' => 'Kommentar',
