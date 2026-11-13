@@ -10,24 +10,41 @@
 
     @if ($multiline)
         <textarea
-            {{ $attributes->merge([
-                'id' => $name,
-                'name' => $name,
-                'class' => 'mt-1 min-h-24 w-full rounded-field bg-field px-3 py-2 text-[15px] text-field-ink',
-            ]) }}
+            {{ $attributes
+                ->class([
+                    'mt-1 min-h-24 w-full rounded-field border-2 bg-field px-3 py-2 text-[15px] text-field-ink',
+                    'border-field-error' => $errors->has($name),
+                    'border-transparent' => ! $errors->has($name),
+                ])
+                ->merge([
+                    'id' => $name,
+                    'name' => $name,
+                    'aria-invalid' => $errors->has($name) ? 'true' : null,
+                    'aria-describedby' => $errors->has($name) ? $name.'-error' : null,
+                ]) }}
         >{{ $slot }}</textarea>
     @else
         <input
-            {{ $attributes->merge([
-                'id' => $name,
-                'name' => $name,
-                'type' => $type,
-                'class' => 'mt-1 h-11 w-full rounded-field bg-field px-3 text-[15px] text-field-ink',
-            ]) }}
+            {{ $attributes
+                ->class([
+                    'mt-1 h-11 w-full rounded-field border-2 bg-field px-3 text-[15px] text-field-ink',
+                    'border-field-error' => $errors->has($name),
+                    'border-transparent' => ! $errors->has($name),
+                ])
+                ->merge([
+                    'id' => $name,
+                    'name' => $name,
+                    'type' => $type,
+                    'aria-invalid' => $errors->has($name) ? 'true' : null,
+                    'aria-describedby' => $errors->has($name) ? $name.'-error' : null,
+                ]) }}
         >
     @endif
 
     @error($name)
-        <p class="mt-1 text-[13px] text-accent" data-color="{{ \App\Enums\Section::Calendar->color() }}">{{ $message }}</p>
+        <p id="{{ $name }}-error" class="mt-1 flex items-center gap-1.5 text-[13px] font-semibold text-field-error-ink">
+            <x-icon name="exclamation-circle" size="4" stroke="2" class="shrink-0" />
+            {{ $message }}
+        </p>
     @enderror
 </div>

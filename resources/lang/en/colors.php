@@ -38,4 +38,6 @@ return [
     'sheet_body' => 'Extra fields live here.',
     'close' => 'Close',
     'required' => 'Name is required.',
+    'success' => 'Saved.',
+    'error' => 'Could not save. Try again.',
 ];

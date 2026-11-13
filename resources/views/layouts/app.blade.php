@@ -42,7 +42,10 @@
                 <div class="-mt-4 mb-4 hidden items-center justify-end gap-2 sm:flex">@yield('actions')</div>
             @endif
             @if (session('status'))
-                <p class="mb-6 rounded-3xl bg-status px-4 py-3 text-sm text-ink">{{ session('status') }}</p>
+                <x-ui.message class="mb-6">{{ session('status') }}</x-ui.message>
+            @endif
+            @if (session('error'))
+                <x-ui.message type="error" class="mb-6">{{ session('error') }}</x-ui.message>
             @endif
             @yield('content')
         </main>

@@ -122,6 +122,15 @@
     --accent: var(--s-4);
     --field: var(--color-white);
     --field-ink: var(--color-d-5);
+    /* Messages: success is soft, error is the section scale turned around. */
+    --success: var(--s-1);
+    --success-line: var(--s-2);
+    --success-ink: var(--color-d-5);
+    --success-icon: var(--s-4);
+    --error: var(--s-5);
+    --error-ink: var(--s-1);
+    --field-error: var(--s-4);
+    --field-error-ink: var(--s-5);
     --header: var(--s-3, var(--color-d-3));
     --section-mark: var(--s-5, var(--color-d-5));
 }
@@ -142,6 +151,14 @@ html[data-theme='dark'] [data-color] {
     --accent: var(--s-2);
     --field: var(--s-1, var(--color-d-1));
     --field-ink: var(--color-d-5);
+    --success: var(--s-4);
+    --success-line: var(--s-4);
+    --success-ink: var(--s-1);
+    --success-icon: var(--s-2);
+    --error: var(--s-2);
+    --error-ink: var(--s-5);
+    --field-error: var(--s-2);
+    --field-error-ink: var(--s-2);
     --header: var(--s-4, var(--color-d-4));
     --section-mark: var(--s-2, var(--color-d-2));
 }
@@ -373,6 +390,14 @@ html[data-theme='dark'] :is(input, textarea, select):not([type='checkbox']):not(
     --color-tonal-ink: var(--tonal-ink);
     --color-accent: var(--accent);
     --color-field-ink: var(--field-ink);
+    --color-success: var(--success);
+    --color-success-line: var(--success-line);
+    --color-success-ink: var(--success-ink);
+    --color-success-icon: var(--success-icon);
+    --color-error: var(--error);
+    --color-error-ink: var(--error-ink);
+    --color-field-error: var(--field-error);
+    --color-field-error-ink: var(--field-error-ink);
     --color-badge: var(--badge);
     --color-notice: var(--notice);
     --color-panel: var(--panel);

@@ -44,6 +44,11 @@
                                 <x-ui.button variant="danger">{{ __('colors.danger') }}</x-ui.button>
                             </div>
 
+                            <div class="space-y-2">
+                                <x-ui.message>{{ __('colors.success') }}</x-ui.message>
+                                <x-ui.message type="error">{{ __('colors.error') }}</x-ui.message>
+                            </div>
+
                             <x-ui.field :label="__('colors.field')" :name="'name-'.$family['letter']" />
                             <x-ui.field :label="__('colors.note')" :name="'note-'.$family['letter']" multiline />
 

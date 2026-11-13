@@ -38,4 +38,6 @@ return [
     'sheet_body' => 'Extra fält hamnar här.',
     'close' => 'Stäng',
     'required' => 'Namn krävs.',
+    'success' => 'Sparat.',
+    'error' => 'Det gick inte att spara. Försök igen.',
 ];
