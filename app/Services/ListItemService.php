@@ -52,6 +52,18 @@ class ListItemService
         ]);
     }
 
+    public function unhandle(User $actor, ListItem $item): void
+    {
+        if (! $actor->can('unhandle', $item)) {
+            throw new AuthorizationException;
+        }
+
+        $item->update([
+            'handled_at' => null,
+            'handled_by' => null,
+        ]);
+    }
+
     public function delete(User $actor, ListItem $item): void
     {
         if (! $actor->can('delete', $item)) {

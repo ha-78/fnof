@@ -73,6 +73,14 @@ class StoreListItemRequest extends FormRequest
 
                 if (! $visible) {
                     $validator->errors()->add('list_id', __('validation.exists', ['attribute' => __('lists.list')]));
+
+                    return;
+                }
+
+                $listIsPublic = (bool) ItemList::query()->whereKey($this->integer('list_id'))->value('is_public');
+
+                if ($this->boolean('item_is_public') && ! $listIsPublic) {
+                    $validator->errors()->add('item_is_public', __('lists.private_list_item'));
                 }
             },
         ];

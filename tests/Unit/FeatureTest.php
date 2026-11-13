@@ -3,6 +3,9 @@
 use App\Enums\Feature;
 use App\Enums\Role;
 use App\Enums\Section;
+use Tests\TestCase;
+
+uses(TestCase::class);
 
 it('keeps action privileges off until they are granted', function () {
     expect(Feature::CreateThreads->defaultFor(Role::Member))->toBeFalse()

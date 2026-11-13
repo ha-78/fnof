@@ -191,7 +191,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 if (! response.ok) {
-                    checkbox.checked = false;
+                    checkbox.checked = ! checkbox.checked;
                     checkbox.disabled = false;
                     this.pending = false;
 
@@ -202,16 +202,23 @@ document.addEventListener('alpine:init', () => {
                     this.leaving = true;
                     this.timer = window.setTimeout(() => {
                         const row = this.$root;
-                        const table = row.closest('[data-list-table]');
+                        const list = row.closest('[data-list]');
+
+                        if (list?.hasAttribute('data-reload-on-handle')) {
+                            window.location.reload();
+
+                            return;
+                        }
+
                         row.remove();
 
-                        if (table && table.querySelector('tbody tr') === null) {
-                            table.querySelector('[data-empty]')?.classList.remove('hidden');
+                        if (list && list.querySelector('[data-item]') === null) {
+                            list.querySelector('[data-empty]')?.classList.remove('hidden');
                         }
                     }, 700);
                 }, 2000);
             } catch {
-                checkbox.checked = false;
+                checkbox.checked = ! checkbox.checked;
                 checkbox.disabled = false;
                 this.pending = false;
             }

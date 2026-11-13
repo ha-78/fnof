@@ -63,9 +63,9 @@ return [
     'features' => [
         'create-threads' => 'Skapa trådar',
         'reply-in-threads' => 'Svara i trådar',
-        'publish-bookmarks' => 'Publicera bokmärken',
-        'publish-lists' => 'Publicera listor',
-        'publish-list-items' => 'Publicera listposter',
+        'publish-bookmarks' => 'Dela bokmärken',
+        'publish-lists' => 'Dela listor',
+        'publish-list-items' => 'Dela listposter',
         'add-meals-to-wishlist' => 'Lägg måltider på önskelistan',
         'vote-on-meals' => 'Rösta på måltidsförslag',
         'add-meals-to-shortlist' => 'Lägg måltider på kortlistan',

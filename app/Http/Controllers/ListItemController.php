@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DeleteListItemRequest;
 use App\Http\Requests\HandleListItemRequest;
 use App\Http\Requests\StoreListItemRequest;
+use App\Http\Requests\UnhandleListItemRequest;
 use App\Models\ListItem;
 use App\Services\ListItemService;
 use Illuminate\Http\RedirectResponse;
@@ -14,7 +15,7 @@ class ListItemController extends Controller
 {
     public function store(StoreListItemRequest $request, ListItemService $items): RedirectResponse
     {
-        $items->create(
+        $item = $items->create(
             $request->user(),
             $request->list(),
             $request->validated('item_name'),
@@ -23,7 +24,7 @@ class ListItemController extends Controller
             (bool) $request->validated('item_is_public'),
         );
 
-        return to_route('lists.index')->with('status', __('lists.item_created'));
+        return to_route('lists.index', ['list' => $item->list_id])->with('status', __('lists.item_created'));
     }
 
     public function handle(HandleListItemRequest $request, ListItem $item, ListItemService $items): Response
@@ -33,10 +34,18 @@ class ListItemController extends Controller
         return response()->noContent();
     }
 
+    public function unhandle(UnhandleListItemRequest $request, ListItem $item, ListItemService $items): Response
+    {
+        $items->unhandle($request->user(), $item);
+
+        return response()->noContent();
+    }
+
     public function destroy(DeleteListItemRequest $request, ListItem $item, ListItemService $items): RedirectResponse
     {
+        $listId = $item->list_id;
         $items->delete($request->user(), $item);
 
-        return to_route('lists.index')->with('status', __('lists.item_deleted'));
+        return to_route('lists.index', ['list' => $listId])->with('status', __('lists.item_deleted'));
     }
 }

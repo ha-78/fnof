@@ -1,136 +1,100 @@
 @extends('layouts.app')
 
+@can('create', App\Models\ItemList::class)
+    @section('actions')
+        <a href="{{ route('lists.edit') }}" class="inline-flex h-11 items-center rounded-field bg-tonal px-4 text-[15px] font-semibold text-tonal-ink">{{ __('lists.edit') }}</a>
+    @endsection
+@endcan
+
 @section('content')
-    <div class="flex items-start justify-between gap-3">
-        <h1 class="text-2xl font-semibold tracking-tight">{{ __('lists.lists') }}</h1>
-
-        @can('create', App\Models\ItemList::class)
-            <a href="{{ route('lists.edit') }}" class="shrink-0 text-sm text-ink hover:underline">{{ __('lists.edit') }}</a>
-        @endcan
-    </div>
-
-    @if ($lists->isNotEmpty())
-        @can('create', App\Models\ListItem::class)
-        <form method="POST" action="{{ route('lists.items.store') }}" class="lists-form mt-8 space-y-3 rounded-3xl p-5">
-            @csrf
-
-            <label class="block text-sm font-medium" for="item-list">{{ __('lists.list') }}</label>
-            <select id="item-list" name="list_id" required class="w-full rounded-2xl bg-field px-3 py-2 text-sm text-ink">
+    @if ($lists->isEmpty())
+        <p class="rounded-card border border-surface-line bg-surface px-4 py-3 text-[15px] text-muted">{{ __('lists.empty') }}</p>
+    @else
+        <div x-data="{ current: {{ (int) old('list_id', $selected) }}, publicLists: @json($publicListIds) }" class="space-y-4">
+            <div role="group" aria-label="{{ __('lists.lists') }}" class="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1">
                 @foreach ($lists as $list)
-                    <option value="{{ $list->id }}" @selected((string) old('list_id') === (string) $list->id)>{{ $list->name }}</option>
+                    <x-ui.chip
+                        :selected="$list->id === $selected"
+                        :when="'current === '.$list->id"
+                        x-on:click="current = {{ $list->id }}; history.replaceState(null, '', '?list={{ $list->id }}')"
+                    >
+                        {{ $list->name }}
+                        <span class="text-xs tabular-nums opacity-75">{{ $list->items->count() }}</span>
+                    </x-ui.chip>
                 @endforeach
-            </select>
-
-            @error('list_id')
-                <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
-            @enderror
-
-            <label class="block text-sm font-medium" for="item-name">{{ __('lists.name') }}</label>
-            <input id="item-name" name="item_name" type="text" value="{{ old('item_name') }}" required maxlength="255" class="w-full rounded-2xl bg-field px-3 py-2 text-sm text-ink">
-
-            @error('item_name')
-                <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
-            @enderror
-
-            <label class="block text-sm font-medium" for="item-description">{{ __('lists.description') }}</label>
-            <textarea id="item-description" name="item_description" rows="3" maxlength="10000" class="w-full rounded-2xl bg-field px-3 py-2 text-sm text-ink">{{ old('item_description') }}</textarea>
-
-            @error('item_description')
-                <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
-            @enderror
-
-            <label class="block text-sm font-medium" for="item-estimate">{{ __('lists.estimate') }}</label>
-            <input id="item-estimate" name="item_estimate" type="number" value="{{ old('item_estimate') }}" step="1" class="w-full rounded-2xl bg-field px-3 py-2 text-sm text-ink">
-
-            @error('item_estimate')
-                <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
-            @enderror
-
-            <div class="flex flex-col items-end gap-3 md:flex-row md:items-center md:justify-end">
-                @can('publish', App\Models\ListItem::class)
-                    <label class="flex items-center gap-2 self-start text-sm md:mr-auto">
-                        <input type="checkbox" name="item_is_public" value="1" @checked(old('item_is_public'))>
-                        {{ __('lists.is_public') }}
-                    </label>
-                @endcan
-
-                <button type="submit" class="rounded-full bg-[var(--color-c-5)] px-4 py-2 text-sm font-medium text-[var(--color-c-1)] hover:opacity-90">{{ __('lists.save') }}</button>
             </div>
-        </form>
-        @endcan
+
+            @foreach ($lists as $list)
+                <x-ui.group
+                    :heading="$list->name"
+                    data-list
+                    x-show="current === {{ $list->id }}"
+                    :x-cloak="$list->id !== $selected"
+                >
+                    <x-slot:badge>
+                        @if ($list->is_public)
+                            <x-ui.badge icon="globe">{{ __('lists.shared_one') }}</x-ui.badge>
+                        @else
+                            <x-ui.badge icon="lock">{{ __('lists.private_one') }}</x-ui.badge>
+                        @endif
+                    </x-slot:badge>
+
+                    <x-slot:actions>
+                        <a href="{{ route('lists.show', $list) }}" class="inline-flex items-center gap-0.5">{{ __('lists.handled_link') }}</a>
+                    </x-slot:actions>
+
+                    <p data-empty @class(['px-4 py-3 text-[15px] text-muted', 'hidden' => $list->items->isNotEmpty()])>{{ __('lists.items_empty') }}</p>
+
+                    @foreach ($list->items as $item)
+                        <x-list-item :item="$item" />
+                    @endforeach
+                </x-ui.group>
+            @endforeach
+
+            @can('create', App\Models\ListItem::class)
+                @error('list_id')
+                    <x-ui.message type="error" :dismissible="false">{{ $message }}</x-ui.message>
+                @enderror
+
+                <div class="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-10 -mx-4 bg-canvas px-4 py-2 sm:bottom-0 sm:mx-0 sm:px-0">
+                    <x-ui.quick-add
+                        :label="__('lists.add_item')"
+                        :placeholder="__('lists.item_placeholder')"
+                        name="item_name"
+                        :action="route('lists.items.store')"
+                        :value="old('item_name')"
+                        expandable
+                        :more-label="__('lists.more')"
+                        :expanded="$errors->hasAny(['item_description', 'item_estimate', 'item_is_public']) || filled(old('item_description')) || filled(old('item_estimate')) || old('item_is_public')"
+                    >
+                        <x-slot:hidden>
+                            <input type="hidden" name="list_id" value="{{ old('list_id', $selected) }}" x-bind:value="current">
+                        </x-slot:hidden>
+
+                        <x-ui.field :label="__('lists.description')" name="item_description" multiline maxlength="10000">{{ old('item_description') }}</x-ui.field>
+                        <x-ui.field :label="__('lists.estimate')" name="item_estimate" type="number" step="1" inputmode="numeric" :value="old('item_estimate')" />
+
+                        {{-- Items in a private list stay private: the switch is disabled (and not sent) there. --}}
+                        @can('publish', App\Models\ListItem::class)
+                            <fieldset x-show="publicLists.includes(current)" x-bind:disabled="! publicLists.includes(current)" @unless (in_array($selected, $publicListIds, true)) x-cloak @endunless>
+                                <x-ui.switch :label="__('lists.is_public')" name="item_is_public" :checked="old('item_is_public')" icon="globe" />
+                            </fieldset>
+                        @endcan
+
+                        <p x-show="! publicLists.includes(current)" @if (in_array($selected, $publicListIds, true)) x-cloak @endif class="flex min-h-11 items-center gap-2 rounded-field bg-surface px-3 text-[14px] text-muted">
+                            <x-icon name="lock" size="5" class="shrink-0" />
+                            {{ __('lists.private_list_info') }}
+                        </p>
+
+                        @error('item_is_public')
+                            <p class="flex items-center gap-1.5 text-[13px] font-semibold text-field-error-ink">
+                                <x-icon name="exclamation-circle" size="4" stroke="2" class="shrink-0" />
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </x-ui.quick-add>
+                </div>
+            @endcan
+        </div>
     @endif
-
-    @forelse ($lists as $list)
-        <section class="mt-10">
-            <div class="flex items-baseline justify-between gap-3">
-                <h2 class="text-xl font-semibold tracking-tight">{{ $list->name }}</h2>
-                <a href="{{ route('lists.show', $list) }}" class="shrink-0 text-sm text-ink hover:underline">{{ __('lists.handled_link') }}</a>
-            </div>
-
-            <div class="lists-surface mt-4 overflow-x-auto rounded-3xl" data-list-table>
-                <table class="lists-table w-full text-left text-sm">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-3 text-center"><span class="sr-only">{{ __('lists.public') }}</span></th>
-                            <th class="px-4 py-3 font-medium text-ink">{{ __('lists.name') }}</th>
-                            <th class="px-4 py-3 font-medium text-ink">{{ __('lists.description') }}</th>
-                            @if ($list->hasEstimatedItem())
-                                <th class="px-4 py-3 font-medium text-ink">{{ __('lists.estimate') }}</th>
-                            @endif
-                            <th class="px-4 py-3 text-center"><span class="sr-only">{{ __('lists.handle_item') }}</span></th>
-                            <th class="px-4 py-3"><span class="sr-only">{{ __('lists.delete_item') }}</span></th>
-                        </tr>
-                    </thead>
-                    @if ($list->items->isNotEmpty())
-                        <tbody>
-                            @foreach ($list->items as $item)
-                                <tr
-                                    @can('handle', $item)
-                                        class="transition-opacity duration-700"
-                                        x-data="handleItem"
-                                        data-handle-url="{{ route('lists.items.handle', $item) }}"
-                                        :class="leaving && 'opacity-0'"
-                                    @endcan
-                                >
-                                    <td class="px-4 py-3 text-center">
-                                        @if ($item->is_public)
-                                            <span class="inline-flex text-ink">
-                                                <x-icon name="globe" />
-                                                <span class="sr-only">{{ __('lists.public') }}</span>
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3 font-medium">{{ $item->name }}</td>
-                                    <td class="px-4 py-3 whitespace-pre-wrap break-words">{{ $item->description }}</td>
-                                    @if ($list->hasEstimatedItem())
-                                        <td class="px-4 py-3 whitespace-nowrap tabular-nums">{{ $item->estimate }}</td>
-                                    @endif
-                                    <td class="px-4 py-3 text-center">
-                                        @can('handle', $item)
-                                            <input type="checkbox" class="size-5" aria-label="{{ __('lists.handle_item') }}" @change="mark($event)">
-                                        @endcan
-                                    </td>
-                                    <td class="px-4 py-3 text-right">
-                                        @can('delete', $item)
-                                            <form method="POST" action="{{ route('lists.items.destroy', $item) }}" onsubmit="return confirm(@js(__('lists.confirm_delete_item')))">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="inline-flex p-1 text-ink" aria-label="{{ __('lists.delete_item') }}">
-                                                    <x-icon name="trash" size="5" />
-                                                </button>
-                                            </form>
-                                        @endcan
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    @endif
-                </table>
-
-                <p @class(['px-4 py-3 text-sm text-ink', 'hidden' => $list->items->isNotEmpty()]) data-empty>{{ __('lists.items_empty') }}</p>
-            </div>
-        </section>
-    @empty
-        <p class="lists-surface mt-8 rounded-3xl px-4 py-3 text-sm text-ink">{{ __('lists.empty') }}</p>
-    @endforelse
 @endsection

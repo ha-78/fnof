@@ -18,16 +18,7 @@
                 <x-ui.field :label="__('bookmarks.url')" name="url" type="url" :value="old('url')" required maxlength="2048" placeholder="https://" />
 
                 @can('publish', App\Models\Bookmark::class)
-                    <label class="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-field bg-surface px-3">
-                        <span class="flex items-center gap-2 text-[15px] font-medium">
-                            <x-icon name="globe" size="5" />
-                            {{ __('bookmarks.is_public') }}
-                        </span>
-                        <input type="checkbox" name="is_public" value="1" @checked(old('is_public')) class="peer sr-only">
-                        <span aria-hidden="true" class="flex h-7 w-11.5 shrink-0 items-center rounded-full bg-line p-0.75 peer-checked:justify-end peer-checked:bg-accent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink">
-                            <span class="size-5.5 rounded-full bg-field shadow-sm"></span>
-                        </span>
-                    </label>
+                    <x-ui.switch :label="__('bookmarks.is_public')" name="is_public" :checked="old('is_public')" icon="globe" />
                 @endcan
 
                 <div class="flex gap-2 pt-1">

@@ -20,8 +20,13 @@ class ListController extends Controller
         Gate::authorize('viewAny', ItemList::class);
         Gate::authorize('viewAny', ListItem::class);
 
+        $visible = $lists->forUserWithItems($request->user());
+        $selected = $visible->firstWhere('id', $request->integer('list')) ?? $visible->first();
+
         return view('lists.index', [
-            'lists' => $lists->forUserWithItems($request->user()),
+            'lists' => $visible,
+            'selected' => $selected?->id,
+            'publicListIds' => $visible->where('is_public', true)->pluck('id')->values()->all(),
         ]);
     }
 
@@ -29,9 +34,13 @@ class ListController extends Controller
     {
         Gate::authorize('view', $list);
 
+        [$handled, $open] = $items->forList($request->user(), $list)
+            ->partition(fn (ListItem $item): bool => $item->handled_at !== null);
+
         return view('lists.show', [
             'list' => $list,
-            'items' => $items->forList($request->user(), $list),
+            'open' => $open,
+            'handled' => $handled,
         ]);
     }
 
@@ -39,8 +48,12 @@ class ListController extends Controller
     {
         Gate::authorize('create', ItemList::class);
 
+        [$shared, $private] = $lists->forUser($request->user())
+            ->partition(fn (ItemList $list): bool => $list->is_public);
+
         return view('lists.edit', [
-            'lists' => $lists->forUser($request->user()),
+            'shared' => $shared,
+            'private' => $private,
         ]);
     }
 

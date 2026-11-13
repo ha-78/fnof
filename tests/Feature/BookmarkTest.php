@@ -40,7 +40,7 @@ it('lists a bookmark by name, site and link', function () {
         ->assertSee(__('bookmarks.bookmarks'))
         ->assertSee(__('bookmarks.new'))
         ->assertSee(__('bookmarks.private'))
-        ->assertDontSee(__('bookmarks.shared'))
+        ->assertDontSee('>'.__('bookmarks.shared').'</h2>', false)
         ->assertSee('>https://example.com/apelsin</span>', false)
         ->assertSee('Apelsin')
         ->assertSee('Zebra')

@@ -52,6 +52,13 @@ class ListItemPolicy
             && $actor->can('view', $item);
     }
 
+    public function unhandle(User $actor, ListItem $item): bool
+    {
+        return $actor->canWrite()
+            && $item->handled_at !== null
+            && $actor->can('view', $item);
+    }
+
     public function delete(User $actor, ListItem $item): bool
     {
         return $actor->canWrite()

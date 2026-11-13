@@ -90,15 +90,12 @@ it('lists a list by name', function () {
     $response = $this->actingAs($user)
         ->get(route('lists.edit'))
         ->assertSuccessful()
-        ->assertSee('lists-surface', false)
-        ->assertSee('lists-table', false)
-        ->assertSee('lists-form', false)
-        ->assertSee('bg-[var(--color-c-5)]', false)
-        ->assertSee('text-[var(--color-c-1)]', false)
-        ->assertDontSee('bg-form', false)
+        ->assertDontSee('var(--color-', false)
         ->assertSee(__('lists.edit'))
-        ->assertSee(__('lists.created_by'))
-        ->assertSee(__('lists.created_at'))
+        ->assertSee(__('lists.new_list'))
+        ->assertSee('action="'.route('lists.store').'"', false)
+        ->assertSee(__('lists.private'))
+        ->assertDontSee('>'.__('lists.shared').'</h2>', false)
         ->assertSee('name="is_public" value="1"', false)
         ->assertDontSee('name="is_public" value="1" checked', false)
         ->assertSee('Apelsin')
@@ -106,11 +103,32 @@ it('lists a list by name', function () {
         ->assertSee($user->name)
         ->assertSee($createdAt->toDateString())
         ->assertDontSee('15:45')
-        ->assertDontSee('M12 21a9.004', false)
+        ->assertDontSee('title="'.__('lists.public').'"', false)
         ->assertSee('m14.74 9-.346 9', false)
         ->assertSee(__('lists.confirm_delete'), false);
 
     expect($response->getContent())->toMatch('/Apelsin.*Zebra/s');
+});
+
+it('lists shared lists before the user\'s private ones', function () {
+    $user = User::factory()->withRole(Role::Admin)->create();
+    $other = User::factory()->create();
+
+    ItemList::factory()->for($user)->private()->create([
+        'name' => 'Min egen',
+        'context_id' => $user->currentContextId(),
+    ]);
+    ItemList::factory()->for($other)->create([
+        'name' => 'Familjens',
+        'context_id' => $user->currentContextId(),
+    ]);
+
+    $response = $this->actingAs($user)
+        ->get(route('lists.edit'))
+        ->assertSuccessful()
+        ->assertDontSee('title="'.__('lists.public').'"', false);
+
+    expect($response->getContent())->toMatch('/'.preg_quote(__('lists.shared'), '/').'.*Familjens.*'.preg_quote(__('lists.private'), '/').'.*Min egen/s');
 });
 
 it('shows the list link in the top row', function () {
@@ -148,7 +166,8 @@ it('hides private lists and lists from another context', function () {
         ->assertSuccessful()
         ->assertSee('Delad')
         ->assertSee($owner->name)
-        ->assertSee('M12 21a9.004', false)
+        ->assertSee(__('lists.shared'))
+        ->assertDontSee('>'.__('lists.private').'</h2>', false)
         ->assertDontSee('Hemlig')
         ->assertDontSee('Annanstans');
 });

@@ -63,9 +63,9 @@ return [
     'features' => [
         'create-threads' => 'Create threads',
         'reply-in-threads' => 'Reply in threads',
-        'publish-bookmarks' => 'Publish bookmarks',
-        'publish-lists' => 'Publish lists',
-        'publish-list-items' => 'Publish list items',
+        'publish-bookmarks' => 'Share bookmarks',
+        'publish-lists' => 'Share lists',
+        'publish-list-items' => 'Share list items',
         'add-meals-to-wishlist' => 'Add meals to the wishlist',
         'vote-on-meals' => 'Vote on meal suggestions',
         'add-meals-to-shortlist' => 'Add meals to the short list',

@@ -25,7 +25,7 @@ it('asks guests to log in before list items', function () {
         ->assertRedirect(route('login'));
 });
 
-it('shows each list in its own table', function () {
+it('shows each list as a chip and its open items in a group', function () {
     $user = User::factory()->withFeatures(Feature::PublishListItems)->create();
     $clothes = ItemList::factory()->for($user)->private()->create([
         'name' => 'Kläder',
@@ -67,41 +67,61 @@ it('shows each list in its own table', function () {
     $response = $this->actingAs($user)
         ->get(route('lists.index'))
         ->assertSuccessful()
-        ->assertSee(__('lists.description'))
-        ->assertSee(__('lists.estimate'))
-        ->assertSee('<th class="px-4 py-3 text-center"><span class="sr-only">'.__('lists.public').'</span></th>', false)
-        ->assertDontSee('font-medium text-ink">'.__('lists.public'), false)
+        ->assertDontSee('var(--color-', false)
         ->assertSee(__('lists.items_empty'))
-        ->assertSee('lists-surface', false)
-        ->assertSee('lists-table', false)
-        ->assertSee('lists-form', false)
+        ->assertSee(__('lists.add_item'))
+        ->assertSee(__('lists.more'))
+        ->assertSee('x-data="{ current: '.$books->id.', ', false)
+        ->assertSee('<input type="hidden" name="list_id" value="'.$books->id.'"', false)
         ->assertSee('x-data="handleItem"', false)
+        ->assertSee('data-item', false)
         ->assertSee('href="'.route('lists.show', $clothes).'"', false)
         ->assertSee(__('lists.handled_link'), false)
-        ->assertSee('bg-[var(--color-c-5)]', false)
-        ->assertDontSee('bg-form', false)
         ->assertSee('name="item_is_public" value="1"', false)
         ->assertDontSee('name="item_is_public" value="1" checked', false)
         ->assertSee('Skor')
         ->assertSee('Mössa')
         ->assertSee('Lampa')
         ->assertSee('Vid fönstret')
-        ->assertSee('>400</td>', false)
-        ->assertSee('>0</td>', false)
-        ->assertDontSee('M12 21a9.004', false)
+        ->assertSee('>400</span>', false)
+        ->assertSee('>0</span>', false)
+        ->assertDontSee('title="'.__('lists.public').'"', false)
         ->assertSee('m14.74 9-.346 9', false)
         ->assertSee(__('lists.confirm_delete_item'), false);
 
     $html = $response->getContent();
     $empty = preg_quote(__('lists.items_empty'), '/');
-    $estimate = preg_quote(__('lists.estimate'), '/');
-    $publicHeader = '<th class="px-4 py-3 text-center"><span class="sr-only">'.__('lists.public').'</span></th>';
 
     expect($html)->toMatch('/<h2[^>]*>Böcker<\/h2>.*Roman.*<h2[^>]*>Kläder<\/h2>.*Mössa.*Skor.*<h2[^>]*>Möbler<\/h2>.*Lampa.*<h2[^>]*>Väskor<\/h2>.*'.$empty.'/s')
-        ->and($html)->not->toMatch('/<h2[^>]*>Böcker<\/h2>(?:(?!<h2).)*'.$estimate.'/s')
-        ->and($html)->toMatch('/<h2[^>]*>Kläder<\/h2>(?:(?!<h2).)*'.$estimate.'/s')
-        ->and($html)->not->toMatch('/<h2[^>]*>Väskor<\/h2>(?:(?!<h2).)*'.$estimate.'/s')
-        ->and(substr_count($html, $publicHeader))->toBe(4);
+        ->and(substr_count($html, 'x-cloak="x-cloak"'))->toBeGreaterThanOrEqual(3);
+});
+
+it('opens the list named in the address', function () {
+    $user = User::factory()->create();
+    ItemList::factory()->for($user)->private()->create([
+        'name' => 'Böcker',
+        'context_id' => $user->currentContextId(),
+    ]);
+    $clothes = ItemList::factory()->for($user)->private()->create([
+        'name' => 'Kläder',
+        'context_id' => $user->currentContextId(),
+    ]);
+    $hidden = ItemList::factory()->for(User::factory()->create())->private()->create([
+        'name' => 'Hemlig',
+        'context_id' => $user->currentContextId(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('lists.index', ['list' => $clothes->id]))
+        ->assertSuccessful()
+        ->assertSee('x-data="{ current: '.$clothes->id.', ', false)
+        ->assertSee('<input type="hidden" name="list_id" value="'.$clothes->id.'"', false);
+
+    $this->actingAs($user)
+        ->get(route('lists.index', ['list' => $hidden->id]))
+        ->assertSuccessful()
+        ->assertDontSee('current: '.$hidden->id.', ', false)
+        ->assertDontSee('Hemlig');
 });
 
 it('hides private items and items from lists the user cannot see', function () {
@@ -185,7 +205,7 @@ it('saves a private item on a visible list', function () {
             'item_description' => '   ',
             'item_estimate' => '',
         ])
-        ->assertRedirect(route('lists.index'))
+        ->assertRedirect(route('lists.index', ['list' => $list->id]))
         ->assertSessionHas('status', __('lists.item_created'));
 
     $item = ListItem::query()->sole();
@@ -219,7 +239,7 @@ it('saves a public item with a description and estimate', function () {
             'item_estimate' => '250',
             'item_is_public' => '1',
         ])
-        ->assertRedirect(route('lists.index'));
+        ->assertRedirect(route('lists.index', ['list' => $list->id]));
 
     $item = ListItem::query()->sole();
 
@@ -248,6 +268,46 @@ it('hides publishing an item from a member without that grant', function () {
         ->assertForbidden();
 
     expect(ListItem::query()->count())->toBe(0);
+});
+
+it('refuses a public item in a private list', function () {
+    $user = User::factory()->withFeatures(Feature::PublishListItems)->create();
+    $list = ItemList::factory()->for($user)->private()->create([
+        'context_id' => $user->currentContextId(),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('lists.items.store'), [
+            'list_id' => $list->id,
+            'item_name' => 'Skor',
+            'item_is_public' => '1',
+        ])
+        ->assertSessionHasErrors(['item_is_public' => __('lists.private_list_item')]);
+
+    expect(ListItem::query()->count())->toBe(0);
+});
+
+it('shows that a private list keeps its items private', function () {
+    $user = User::factory()->withFeatures(Feature::PublishListItems)->create();
+    $private = ItemList::factory()->for($user)->private()->create([
+        'name' => 'Böcker',
+        'context_id' => $user->currentContextId(),
+    ]);
+    $shared = ItemList::factory()->for($user)->create([
+        'name' => 'Kläder',
+        'context_id' => $user->currentContextId(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('lists.index'))
+        ->assertSuccessful()
+        ->assertSee(__('lists.private_list_info'))
+        ->assertSee(__('lists.private_one'))
+        ->assertSee('M16.5 10.5V6.75', false)
+        ->assertSee(__('lists.shared_one'))
+        ->assertSee('publicLists: ['.$shared->id.']', false)
+        ->assertDontSee('publicLists: ['.$private->id, false)
+        ->assertSee('x-bind:disabled="! publicLists.includes(current)"', false);
 });
 
 it('requires an item name, a whole estimate, and a visible list', function () {
@@ -291,7 +351,7 @@ it('deletes an item on a list the signed-in user created', function () {
 
     $this->actingAs($user)
         ->delete(route('lists.items.destroy', $item))
-        ->assertRedirect(route('lists.index'))
+        ->assertRedirect(route('lists.index', ['list' => $list->id]))
         ->assertSessionHas('status', __('lists.item_deleted'));
 
     expect(ListItem::query()->find($item->id))->toBeNull();
@@ -380,9 +440,16 @@ it('marks an item handled and keeps it on the list page', function () {
         ->assertSee('Zebra')
         ->assertSee('Skor')
         ->assertSee('Vid dörren')
+        ->assertSee(__('lists.open'))
+        ->assertSee(__('lists.handled'))
+        ->assertSee('data-reload-on-handle', false)
+        ->assertSee('data-handle-url="'.route('lists.items.handle', ListItem::query()->where('name', 'Zebra')->sole()).'"', false)
+        ->assertDontSee('data-handle-url="'.route('lists.items.handle', $done).'"', false)
+        ->assertSee('data-handle-url="'.route('lists.items.unhandle', $done).'"', false)
+        ->assertSee(__('lists.unhandle_item'))
         ->assertSee('Hanna')
         ->assertSee('2026-11-11')
-        ->assertSee('>100</td>', false)
+        ->assertSee('>100</span>', false)
         ->assertSee('href="'.route('lists.index').'"', false);
 
     expect($response->getContent())->toMatch('/Zebra.*Skor/s');
@@ -390,6 +457,62 @@ it('marks an item handled and keeps it on the list page', function () {
     $this->actingAs($user)
         ->patch(route('lists.items.handle', $done))
         ->assertForbidden();
+});
+
+it('puts a handled item back on the list', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $list = ItemList::factory()->for($owner)->create([
+        'context_id' => $owner->currentContextId(),
+    ]);
+    $item = ListItem::factory()->for($list)->create([
+        'name' => 'Lampa',
+        'handled_at' => now(),
+        'handled_by' => $owner->id,
+    ]);
+
+    $this->actingAs($member)
+        ->patch(route('lists.items.unhandle', $item))
+        ->assertNoContent();
+
+    $item->refresh();
+
+    expect($item->handled_at)->toBeNull()
+        ->and($item->handled_by)->toBeNull();
+
+    $this->actingAs($member)
+        ->get(route('lists.index'))
+        ->assertSee('Lampa');
+
+    $this->actingAs($member)
+        ->patch(route('lists.items.unhandle', $item))
+        ->assertForbidden();
+});
+
+it('refuses to put back an item the user cannot see or edit', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $reader = User::factory()->withRole(Role::Reader)->create();
+    $list = ItemList::factory()->for($owner)->private()->create([
+        'context_id' => $owner->currentContextId(),
+    ]);
+    $item = ListItem::factory()->for($list)->create([
+        'handled_at' => now(),
+        'handled_by' => $owner->id,
+    ]);
+
+    $this->actingAs($member)
+        ->patch(route('lists.items.unhandle', $item))
+        ->assertForbidden();
+
+    $this->actingAs($reader)
+        ->patch(route('lists.items.unhandle', $item))
+        ->assertForbidden();
+
+    $this->patch(route('lists.items.unhandle', $item))
+        ->assertRedirect(route('login'));
+
+    expect($item->fresh()->handled_at)->not->toBeNull();
 });
 
 it('lets another member handle a public item', function () {
