@@ -17,8 +17,12 @@ class BookmarkController extends Controller
     {
         Gate::authorize('viewAny', Bookmark::class);
 
+        [$shared, $private] = $bookmarks->list($request->user())
+            ->partition(fn (Bookmark $bookmark): bool => $bookmark->is_public);
+
         return view('bookmarks.index', [
-            'bookmarks' => $bookmarks->list($request->user()),
+            'shared' => $shared,
+            'private' => $private,
         ]);
     }
 

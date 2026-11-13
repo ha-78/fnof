@@ -29,10 +29,18 @@
                     {{ $section->label() }}
                 @endif
             </x-slot:title>
-            <x-section-nav variant="top" :current="$section" />
+            <div class="flex items-center gap-2">
+                @hasSection('actions')
+                    <div class="flex items-center gap-2 sm:hidden">@yield('actions')</div>
+                @endif
+                <x-section-nav variant="top" :current="$section" />
+            </div>
         </x-site-header>
         <x-section-nav variant="tabs" :current="$section" />
         <main class="mx-auto max-w-5xl px-4 pt-8 pb-24 sm:pb-8">
+            @hasSection('actions')
+                <div class="-mt-4 mb-4 hidden items-center justify-end gap-2 sm:flex">@yield('actions')</div>
+            @endif
             @if (session('status'))
                 <p class="mb-6 rounded-3xl bg-status px-4 py-3 text-sm text-ink">{{ session('status') }}</p>
             @endif

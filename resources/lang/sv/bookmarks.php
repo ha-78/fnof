@@ -14,4 +14,8 @@ return [
     'empty' => 'Inga bokmärken ännu.',
     'created' => 'Bokmärket är sparat.',
     'deleted' => 'Bokmärket är borttaget.',
+    'new' => 'Nytt bokmärke',
+    'shared' => 'Delade',
+    'private' => 'Bara jag',
+    'cancel' => 'Avbryt',
 ];

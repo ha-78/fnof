@@ -14,4 +14,8 @@ return [
     'empty' => 'No bookmarks yet.',
     'created' => 'The bookmark is saved.',
     'deleted' => 'The bookmark is deleted.',
+    'new' => 'New bookmark',
+    'shared' => 'Shared',
+    'private' => 'Only me',
+    'cancel' => 'Cancel',
 ];

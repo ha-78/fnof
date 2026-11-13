@@ -27,11 +27,11 @@ class ColorPaletteController extends Controller
 
         $errors = new ViewErrorBag;
         $errors->put('default', $messages);
+        view()->share('errors', $errors);
 
         return view('colors.index', [
             'families' => $families,
             'steps' => range(1, 5),
-            'errors' => $errors,
         ]);
     }
 }

@@ -19,7 +19,7 @@ it('asks guests to log in before bookmarks', function () {
         ->assertRedirect(route('login'));
 });
 
-it('lists a bookmark by name and full url', function () {
+it('lists a bookmark by name, site and link', function () {
     $user = User::factory()->create();
     $createdAt = now()->timezone(config('app.timezone'))->setTime(15, 45);
     Bookmark::factory()->for($user)->create([
@@ -36,15 +36,12 @@ it('lists a bookmark by name and full url', function () {
     $response = $this->actingAs($user)
         ->get(route('bookmarks.index'))
         ->assertSuccessful()
-        ->assertSee('bookmarks-surface', false)
-        ->assertSee('bookmarks-table', false)
-        ->assertSee('bookmarks-form', false)
-        ->assertSee('bg-[var(--color-e-5)]', false)
-        ->assertSee('text-[var(--color-e-1)]', false)
-        ->assertDontSee('bg-form', false)
+        ->assertDontSee('var(--color-', false)
         ->assertSee(__('bookmarks.bookmarks'))
-        ->assertSee(__('bookmarks.created_by'))
-        ->assertSee(__('bookmarks.created_at'))
+        ->assertSee(__('bookmarks.new'))
+        ->assertSee(__('bookmarks.private'))
+        ->assertDontSee(__('bookmarks.shared'))
+        ->assertSee('>https://example.com/apelsin</span>', false)
         ->assertSee('Apelsin')
         ->assertSee('Zebra')
         ->assertSee($user->name)
@@ -55,10 +52,52 @@ it('lists a bookmark by name and full url', function () {
         ->assertSee(__('bookmarks.confirm_delete'), false)
         ->assertSee('href="https://example.com/apelsin"', false)
         ->assertSee('href="https://example.com/zebra"', false)
-        ->assertSee('https://example.com/apelsin')
-        ->assertSee('https://example.com/zebra');
+        ->assertSee('target="_blank" rel="noopener noreferrer"', false);
 
     expect($response->getContent())->toMatch('/Apelsin.*Zebra/s');
+});
+
+it('lists shared bookmarks before the user\'s private ones', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+
+    Bookmark::factory()->for($user)->create([
+        'name' => 'Min egen',
+        'url' => 'https://www.example.com/egen',
+    ]);
+    Bookmark::factory()->for($other)->public()->create([
+        'context_id' => $user->currentContextId(),
+        'name' => 'Familjens',
+        'url' => 'https://example.org/familj',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->get(route('bookmarks.index'))
+        ->assertSuccessful()
+        ->assertSee(__('bookmarks.shared'))
+        ->assertSee(__('bookmarks.private'))
+        ->assertSee('>https://example.org/familj</span>', false)
+        ->assertSee('>https://www.example.com/egen</span>', false);
+
+    expect($response->getContent())->toMatch('/'.preg_quote(__('bookmarks.shared'), '/').'.*Familjens.*'.preg_quote(__('bookmarks.private'), '/').'.*Min egen/s');
+});
+
+it('opens the new bookmark sheet again when saving fails', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('bookmarks.index'))
+        ->assertSee('x-data="{ open: false }"', false)
+        ->assertSee("x-on:click=\"\$dispatch('open-sheet', 'new-bookmark')\"", false);
+
+    $this->actingAs($user)
+        ->from(route('bookmarks.index'))
+        ->post(route('bookmarks.store'), ['name' => '', 'url' => ''])
+        ->assertRedirect(route('bookmarks.index'));
+
+    $this->actingAs($user)
+        ->get(route('bookmarks.index'))
+        ->assertSee('x-data="{ open: true }"', false);
 });
 
 it('shows the bookmark link in the top row', function () {
@@ -100,7 +139,7 @@ it('hides private bookmarks and bookmarks from another context', function () {
         ->assertSee('Delad')
         ->assertSee('https://example.com/shared')
         ->assertSee($owner->name)
-        ->assertSee('M12 21a9.004', false)
+        ->assertDontSee('M12 21a9.004', false)
         ->assertDontSee('Hemlig')
         ->assertDontSee('https://example.com/secret')
         ->assertDontSee('Annanstans')
@@ -162,7 +201,7 @@ it('hides publishing a bookmark from a member without that grant', function () {
     $this->actingAs($member)
         ->get(route('bookmarks.index'))
         ->assertSuccessful()
-        ->assertSee('bookmarks-form', false)
+        ->assertSee('action="'.route('bookmarks.store').'"', false)
         ->assertDontSee('name="is_public"', false);
 
     $this->actingAs($member)
