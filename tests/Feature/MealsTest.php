@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\Feature;
 use App\Enums\MealStatus;
+use App\Enums\Role;
+use App\Models\Context;
 use App\Models\Meal;
 use App\Models\User;
 
@@ -15,7 +18,7 @@ it('asks guests to log in before meals', function () {
 });
 
 it('shows the meals form in the right column and the meals color', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->withFeatures(Feature::AddMealsToWishlist)->create())
         ->get(route('meals.index'))
         ->assertSuccessful()
         ->assertSee('data-section="f"', false)
@@ -46,7 +49,7 @@ it('shows the meals form in the right column and the meals color', function () {
 });
 
 it('lists wishlist meals under the form', function () {
-    $owner = User::factory()->create(['name' => 'Ada']);
+    $owner = User::factory()->withFeatures(Feature::AddMealsToWishlist)->create(['name' => 'Ada']);
     $createdAt = now()->timezone(config('app.timezone'))->setTime(15, 45);
     Meal::factory()->for($owner)->create([
         'name' => 'Pasta',
@@ -92,7 +95,7 @@ it('lists wishlist meals under the form', function () {
 });
 
 it('saves a new meal on the wishlist', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->withFeatures(Feature::AddMealsToWishlist)->create();
 
     $this->actingAs($user)
         ->post(route('meals.store'), [
@@ -109,7 +112,8 @@ it('saves a new meal on the wishlist', function () {
         ->and($meal->recipe_link)->toBe('https://example.com/pasta')
         ->and($meal->comment)->toBe('Med citron')
         ->and($meal->status)->toBe(MealStatus::Wishlist)
-        ->and($meal->user_id)->toBe($user->id);
+        ->and($meal->user_id)->toBe($user->id)
+        ->and($meal->context_id)->toBe($user->currentContextId());
 
     $this->actingAs($user)
         ->get(route('meals.index'))
@@ -118,7 +122,7 @@ it('saves a new meal on the wishlist', function () {
 });
 
 it('keeps a posted meal on the wishlist', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->withFeatures(Feature::AddMealsToWishlist)->create();
 
     $this->actingAs($user)
         ->post(route('meals.store'), [
@@ -137,7 +141,7 @@ it('keeps a posted meal on the wishlist', function () {
 });
 
 it('requires only a name', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->withFeatures(Feature::AddMealsToWishlist)->create())
         ->post(route('meals.store'), [
             'name' => '   ',
             'recipe_link' => 'not a url',
@@ -148,4 +152,49 @@ it('requires only a name', function () {
         ->assertSessionDoesntHaveErrors(['comment', 'status']);
 
     expect(Meal::query()->count())->toBe(0);
+});
+
+it('keeps meals inside the household', function () {
+    $user = User::factory()->create();
+    $elsewhere = Context::query()->create(['name' => 'Annan']);
+
+    Meal::factory()->for($user)->create([
+        'name' => 'Hemmamat',
+        'context_id' => $user->currentContextId(),
+    ]);
+    Meal::factory()->create([
+        'name' => 'Grannens mat',
+        'context_id' => $elsewhere->id,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('meals.index'))
+        ->assertSuccessful()
+        ->assertSee('Hemmamat')
+        ->assertDontSee('Grannens mat');
+});
+
+it('lets only those with the wishlist permission add a meal', function () {
+    $member = User::factory()->create();
+    $reader = User::factory()->withRole(Role::Reader)->create();
+    $admin = User::factory()->withRole(Role::Admin)->create();
+
+    foreach ([$member, $reader] as $user) {
+        $this->actingAs($user)
+            ->get(route('meals.index'))
+            ->assertSuccessful()
+            ->assertDontSee('action="'.route('meals.store').'"', false);
+
+        $this->actingAs($user)
+            ->post(route('meals.store'), ['name' => 'Pasta'])
+            ->assertForbidden();
+    }
+
+    expect(Meal::query()->count())->toBe(0);
+
+    $this->actingAs($admin)
+        ->post(route('meals.store'), ['name' => 'Pasta'])
+        ->assertRedirect(route('meals.index'));
+
+    expect(Meal::query()->sole()->context_id)->toBe($admin->currentContextId());
 });

@@ -6,17 +6,18 @@ use App\Http\Requests\StoreMealRequest;
 use App\Models\Meal;
 use App\Services\MealService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class MealsController extends Controller
 {
-    public function index(MealService $meals): View
+    public function index(Request $request, MealService $meals): View
     {
         Gate::authorize('viewAny', Meal::class);
 
         return view('meals.index', [
-            'meals' => $meals->wishlist(),
+            'meals' => $meals->wishlist($request->user()),
         ]);
     }
 

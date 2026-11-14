@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Feature;
 use App\Models\User;
 
 class MealPolicy
@@ -13,6 +14,6 @@ class MealPolicy
 
     public function create(User $actor): bool
     {
-        return $actor->canWrite();
+        return $actor->canWrite() && $actor->allows(Feature::AddMealsToWishlist);
     }
 }

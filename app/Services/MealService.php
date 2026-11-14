@@ -13,10 +13,11 @@ class MealService
     /**
      * @return Collection<int, Meal>
      */
-    public function wishlist(): Collection
+    public function wishlist(User $user): Collection
     {
         return Meal::query()
             ->with('user')
+            ->forContext($user)
             ->where('status', MealStatus::Wishlist)
             ->orderByDesc('id')
             ->get();
@@ -29,6 +30,7 @@ class MealService
         }
 
         return $owner->meals()->create([
+            'context_id' => $owner->currentContextId(),
             'name' => $name,
             'recipe_link' => $recipeLink,
             'comment' => $comment,
