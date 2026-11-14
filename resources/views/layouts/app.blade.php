@@ -19,7 +19,7 @@
         <x-site-header>
             @if ($section->routeName() && ! $section->isMainPage())
                 <x-slot:leading>
-                    <x-section-back :section="$section" />
+                    <x-section-back :section="$section" :href="trim($__env->yieldContent('back'))" />
                 </x-slot:leading>
             @endif
             <x-slot:title>

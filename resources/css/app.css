@@ -326,40 +326,6 @@ html[data-theme='dark'] .account-table tbody tr {
     background-color: var(--color-g-3);
 }
 
-.login-panel {
-    border: 3px solid var(--color-d-2);
-}
-
-.login-button {
-    background-color: var(--color-d-5);
-    color: var(--color-d-1);
-}
-
-html[data-theme='dark'] .login-panel {
-    border-color: var(--color-d-4);
-}
-
-html[data-theme='dark'] .login-button {
-    background-color: var(--color-d-2);
-    color: var(--color-d-5);
-}
-
-.welcome-card[data-color='a'] { background-color: var(--color-a-2); }
-.welcome-card[data-color='b'] { background-color: var(--color-b-2); }
-.welcome-card[data-color='c'] { background-color: var(--color-c-2); }
-.welcome-card[data-color='d'] { background-color: var(--color-d-2); }
-.welcome-card[data-color='e'] { background-color: var(--color-e-2); }
-.welcome-card[data-color='f'] { background-color: var(--color-f-2); }
-.welcome-card[data-color='g'] { background-color: var(--color-g-2); }
-
-html[data-theme='dark'] .welcome-card[data-color='a'] { background-color: var(--color-a-4); }
-html[data-theme='dark'] .welcome-card[data-color='b'] { background-color: var(--color-b-4); }
-html[data-theme='dark'] .welcome-card[data-color='c'] { background-color: var(--color-c-4); }
-html[data-theme='dark'] .welcome-card[data-color='d'] { background-color: var(--color-d-4); }
-html[data-theme='dark'] .welcome-card[data-color='e'] { background-color: var(--color-e-4); }
-html[data-theme='dark'] .welcome-card[data-color='f'] { background-color: var(--color-f-4); }
-html[data-theme='dark'] .welcome-card[data-color='g'] { background-color: var(--color-g-4); }
-
 .home-threads > p {
     background-color: var(--color-a-2);
 }

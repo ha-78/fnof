@@ -1,83 +1,76 @@
 @extends('layouts.app')
 
+@section('title', $user->name)
+@section('back', route('users.index'))
+
 @section('content')
-    <a href="{{ route('users.index') }}" class="inline-flex rounded-full bg-pill px-3 py-1 text-sm text-ink hover:bg-pill-active">{{ __('users.back') }}</a>
-
-    <h1 class="mt-4 text-2xl font-semibold tracking-tight">{{ $user->name }}</h1>
-    <p class="mt-2 text-muted">{{ $user->email }}</p>
-    <p class="mt-4 inline-flex rounded-full bg-badge px-3 py-1 text-sm text-ink">{{ __('users.role') }}: {{ $user->role->label() }}</p>
-
-    @if ($canChangeRole)
-        <form method="POST" action="{{ route('users.role.update', $user) }}" class="account-form mt-6 space-y-3 rounded-3xl p-5">
-            @csrf
-            @method('PATCH')
-
-            @if (count($assignableRoles) > 1)
-                <label class="block text-sm font-medium" for="role">{{ __('users.role') }}</label>
-                <select id="role" name="role" class="rounded-2xl bg-field px-3 py-2 text-sm text-ink">
-                    @foreach ($assignableRoles as $role)
-                        <option value="{{ $role->value }}" @selected($user->role === $role)>{{ $role->label() }}</option>
-                    @endforeach
-                </select>
-                <div class="flex justify-end">
-                    <button type="submit" class="rounded-full bg-[var(--color-g-5)] px-4 py-2 text-sm font-medium text-[var(--color-g-1)] hover:opacity-90">{{ __('users.save_role') }}</button>
-                </div>
-            @else
-                <input type="hidden" name="role" value="{{ $assignableRoles[0]->value }}">
-                <div class="flex justify-end">
-                    <button type="submit" class="rounded-full bg-[var(--color-g-5)] px-4 py-2 text-sm font-medium text-[var(--color-g-1)] hover:opacity-90">{{ __('users.make_member') }}</button>
-                </div>
-            @endif
-
-            @error('role')
-                <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
-            @enderror
-        </form>
-    @endif
-
-    @if ($canAssignFeatures)
-        <section class="account-form mt-6 rounded-3xl p-5">
-            <h2 class="text-lg font-medium">{{ __('users.permissions') }}</h2>
-
-            @if ($featureGroups === [])
-                <p class="mt-3 text-sm text-muted">{{ __('users.no_permissions') }}</p>
-            @else
-                <form method="POST" action="{{ route('users.features.update', $user) }}" class="mt-4 space-y-5">
-                    @csrf
-                    @method('PUT')
-
-                    @foreach ($featureGroups as $group)
-                        <fieldset>
-                            <legend class="flex items-center gap-2 text-sm font-medium">
-                                <span class="inline-block size-2 rounded-full" style="background-color: var(--color-{{ $group['section']->color() }}-5)"></span>
-                                {{ $group['label'] }}
-                            </legend>
-                            <div class="mt-2 space-y-2">
-                                @foreach ($group['features'] as $feature)
-                                    <label class="flex items-center gap-2 text-sm">
-                                        <input type="hidden" name="features[{{ $feature->value }}]" value="0">
-                                        <input
-                                            type="checkbox"
-                                            name="features[{{ $feature->value }}]"
-                                            value="1"
-                                            @checked($user->allows($feature))
-                                        >
-                                        {{ $feature->label() }}
-                                    </label>
-                                @endforeach
-                            </div>
-                        </fieldset>
-                    @endforeach
-
-                    @error('features')
-                        <p class="rounded-2xl bg-danger-soft px-3 py-2 text-sm text-danger">{{ $message }}</p>
-                    @enderror
-
-                    <div class="flex justify-end">
-                        <button type="submit" class="rounded-full bg-[var(--color-g-5)] px-4 py-2 text-sm font-medium text-[var(--color-g-1)] hover:opacity-90">{{ __('users.save_permissions') }}</button>
-                    </div>
-                </form>
-            @endif
+    <div class="space-y-6">
+        <section class="flex items-center gap-4 rounded-card border border-surface-line bg-surface p-4">
+            <span aria-hidden="true" class="grid size-13 shrink-0 place-items-center rounded-full bg-tonal text-xl font-semibold text-tonal-ink">{{ Str::upper(Str::substr($user->name, 0, 1)) }}</span>
+            <div class="min-w-0 flex-1">
+                <h2 class="truncate text-[17px] font-semibold">{{ $user->name }}</h2>
+                <p class="truncate text-[13px] text-muted">{{ $user->email }}</p>
+            </div>
+            <x-ui.badge class="shrink-0">{{ __('users.role') }}: {{ $user->role->label() }}</x-ui.badge>
         </section>
-    @endif
+
+        @if ($canChangeRole)
+            <x-ui.form-card :label="__('users.role')" :action="route('users.role.update', $user)" method="PATCH">
+                @if (count($assignableRoles) > 1)
+                    <x-ui.field
+                        :label="__('users.role')"
+                        name="role"
+                        :options="collect($assignableRoles)->mapWithKeys(fn ($role) => [$role->value => $role->label()])->all()"
+                        :selected="$user->role->value"
+                    />
+                    <div class="flex justify-end">
+                        <x-ui.button type="submit" variant="tonal">{{ __('users.save_role') }}</x-ui.button>
+                    </div>
+                @else
+                    <input type="hidden" name="role" value="{{ $assignableRoles[0]->value }}">
+                    <x-ui.button type="submit" class="w-full">{{ __('users.make_member') }}</x-ui.button>
+
+                    @error('role')
+                        <p class="flex items-center gap-1.5 text-[13px] font-semibold text-field-error-ink">
+                            <x-icon name="exclamation-circle" size="4" stroke="2" class="shrink-0" />
+                            {{ $message }}
+                        </p>
+                    @enderror
+                @endif
+            </x-ui.form-card>
+        @endif
+
+        @if ($canAssignFeatures)
+            <section class="space-y-3">
+                <h2 class="px-1 text-[13px] font-semibold uppercase tracking-wide text-muted">{{ __('users.permissions') }}</h2>
+
+                @if ($featureGroups === [])
+                    <p class="rounded-card border border-surface-line bg-surface px-4 py-3 text-[15px] text-muted">{{ __('users.no_permissions') }}</p>
+                @else
+                    <form method="POST" action="{{ route('users.features.update', $user) }}" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+
+                        {{-- Each group takes its section's colors, so the switches read as that part of the app. --}}
+                        @foreach ($featureGroups as $group)
+                            <x-ui.group :heading="$group['label']" data-color="{{ $group['section']->color() }}">
+                                @foreach ($group['features'] as $feature)
+                                    <div>
+                                        <input type="hidden" name="features[{{ $feature->value }}]" value="0">
+                                        <x-ui.switch plain :label="$feature->label()" name="features[{{ $feature->value }}]" :checked="$user->allows($feature)" />
+                                    </div>
+                                @endforeach
+                            </x-ui.group>
+                        @endforeach
+
+                        @error('features')
+                            <x-ui.message type="error" :dismissible="false">{{ $message }}</x-ui.message>
+                        @enderror
+
+                        <x-ui.button type="submit" class="w-full">{{ __('users.save_permissions') }}</x-ui.button>
+                    </form>
+                @endif
+            </section>
+        @endif
+    </div>
 @endsection

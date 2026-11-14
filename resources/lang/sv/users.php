@@ -10,6 +10,9 @@ return [
     'log_out' => 'Logga ut den här enheten',
     'log_out_hint' => 'Övriga inloggade enheter förblir inloggade.',
     'sessions' => 'Sessioner',
+    'appearance' => 'Utseende',
+    'household' => 'Hushållet',
+    'users_hint' => 'Personer, inbjudningar och hushållets namn',
     'devices' => [
         'name' => 'Enhet',
         'last_used_at' => 'Senast använd',

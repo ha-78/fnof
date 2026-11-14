@@ -144,8 +144,9 @@ it('leaves the login header on the shared fallback', function () {
         ->assertSee('data-section="d"', false)
         ->assertSee('data-color="d"', false)
         ->assertDontSee('--header-light', false)
-        ->assertSee('login-panel', false)
-        ->assertSee('login-button', false)
+        ->assertSee('bg-primary', false)
+        ->assertSee('rounded-card', false)
         ->assertSee(__('layout.brand'), false)
-        ->assertDontSee('bg-panel', false);
+        ->assertDontSee('bg-panel', false)
+        ->assertDontSee('var(--color-', false);
 });

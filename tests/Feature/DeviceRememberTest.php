@@ -188,17 +188,15 @@ it('lists signed-in devices on the account page and marks this one', function ()
         ->withCookie($cookieName, $current->id.'|'.$plainToken)
         ->get(route('account'))
         ->assertSuccessful()
-        ->assertSee('account-surface', false)
-        ->assertSee('account-table', false)
-        ->assertSee('bg-[var(--color-g-5)]', false)
+        ->assertDontSee('var(--color-', false)
         ->assertSeeInOrder([
             __('users.sessions'),
-            __('users.devices.name'),
-            __('users.devices.last_used_at'),
             'Chrome on Mac',
             __('users.devices.current'),
+            __('users.devices.last_used_at'),
             $current->last_used_at->timezone(config('app.timezone'))->format('Y-m-d H:i'),
             'Safari on iPhone',
+            __('users.log_out'),
         ])
         ->assertDontSee('Expired phone')
         ->assertDontSee('Someone elses laptop')

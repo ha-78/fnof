@@ -10,6 +10,9 @@ return [
     'log_out' => 'Log out this device',
     'log_out_hint' => 'Other signed-in devices stay signed in.',
     'sessions' => 'Sessions',
+    'appearance' => 'Appearance',
+    'household' => 'Household',
+    'users_hint' => 'People, invites and the household name',
     'devices' => [
         'name' => 'Device',
         'last_used_at' => 'Last used',

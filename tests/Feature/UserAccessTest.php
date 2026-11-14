@@ -15,6 +15,8 @@ it('does not offer public registration', function () {
         ->assertSee('href="'.route('login').'"', false)
         ->assertSee('welcome-card', false)
         ->assertSee(__('welcome.intro'))
+        ->assertSee('M6.75 3v2.25M17.25 3v2.25', false)
+        ->assertDontSee('var(--color-', false)
         ->assertDontSee('Documentation', false)
         ->assertDontSee('/register', false);
 
@@ -179,6 +181,9 @@ it('shows each person their account, and the user list only to an admin', functi
         ->assertSee($admin->email)
         ->assertSee(__('users.log_out'))
         ->assertSee(route('users.index'), false)
+        ->assertSee(__('users.household'))
+        ->assertSee('x-data="themeToggle"', false)
+        ->assertDontSee('var(--color-', false)
         ->assertDontSee(__('users.role').':', false)
         ->assertSeeInOrder([
             __('themes.label'),
@@ -194,12 +199,9 @@ it('shows each person their account, and the user list only to an admin', functi
         ->assertSee(__('users.context'))
         ->assertSee(__('users.manage'))
         ->assertDontSee(__('users.log_out'))
-        ->assertSee('account-surface', false)
-        ->assertSee('account-table', false)
-        ->assertSee('account-form', false)
-        ->assertSee('bg-[var(--color-g-5)]', false)
-        ->assertSee('text-[var(--color-g-1)]', false)
-        ->assertDontSee('bg-form', false);
+        ->assertSee(__('users.invites.heading'))
+        ->assertSee('href="'.route('users.show', $reader).'"', false)
+        ->assertDontSee('var(--color-', false);
 
     $this->actingAs($reader)
         ->get(route('account'))
@@ -297,6 +299,21 @@ it('groups permissions by section on the user page', function () {
         ->assertSee(__('welcome.calendar_title'), false)
         ->assertSee(__('users.features.create-notifications'), false)
         ->assertDontSee(__('users.no_permissions'), false);
+});
+
+it('shows each permission group in its section color with switches', function () {
+    $admin = User::factory()->withRole(Role::Admin)->create();
+    $member = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->get(route('users.show', $member))
+        ->assertSuccessful()
+        ->assertSee('data-color="a"', false)
+        ->assertSee('name="features[create-threads]" value="1"', false)
+        ->assertSee('peer sr-only', false)
+        ->assertSee('href="'.route('users.index').'"', false)
+        ->assertDontSee('var(--color-', false)
+        ->assertDontSee('style="background-color', false);
 });
 
 it('hides permission toggles for a reader', function () {

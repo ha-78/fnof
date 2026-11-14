@@ -3,9 +3,15 @@
     'name',
     'checked' => false,
     'icon' => null,
+    'plain' => false,
 ])
 
-<label {{ $attributes->class('flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-field bg-surface px-3') }}>
+{{-- "plain" drops the background, for a switch used as a row inside a group. --}}
+<label {{ $attributes->class([
+    'flex min-h-11 cursor-pointer items-center justify-between gap-3',
+    'rounded-field bg-surface px-3' => ! $plain,
+    'px-4 py-1' => $plain,
+]) }}>
     <span class="flex items-center gap-2 text-[15px] font-medium">
         @if ($icon)
             <x-icon :name="$icon" size="5" />
