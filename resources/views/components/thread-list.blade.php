@@ -1,13 +1,15 @@
 @props(['threads', 'emptyMessage'])
 
 @if ($threads->isEmpty())
-    <p class="mt-3 rounded-3xl bg-notice px-4 py-3 text-sm text-ink">{{ $emptyMessage }}</p>
+    <p class="rounded-card border border-surface-line bg-surface px-4 py-3 text-[15px] text-muted">{{ $emptyMessage }}</p>
 @else
-    <div class="mt-4 space-y-8">
+    <x-ui.group>
         @foreach ($threads as $thread)
             <x-thread :thread="$thread" />
         @endforeach
-    </div>
+    </x-ui.group>
 
-    <div class="mt-6">{{ $threads->links() }}</div>
+    @if ($threads->hasPages())
+        <div class="mt-4">{{ $threads->links() }}</div>
+    @endif
 @endif

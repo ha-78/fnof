@@ -14,11 +14,11 @@
     --color-a-3: #a9c184;
     --color-a-4: #6b8f4e;
     --color-a-5: #3c5228;
-    --color-b-1: #f7f1ec;
-    --color-b-2: #e6cdc2;
-    --color-b-3: #c47868;
-    --color-b-4: #8a3d32;
-    --color-b-5: #4e241c;
+    --color-b-1: #f8eeef;
+    --color-b-2: #eac9ce;
+    --color-b-3: #c46978;
+    --color-b-4: #8b3344;
+    --color-b-5: #4d1d28;
     --color-c-1: #fcf6e4;
     --color-c-2: #f6e7a8;
     --color-c-3: #e6c85a;
@@ -131,6 +131,9 @@
     --error-ink: var(--s-1);
     --field-error: var(--s-4);
     --field-error-ink: var(--s-5);
+    /* Speech bubbles: your own messages in step 2, others on the surface. */
+    --bubble-mine: var(--s-2);
+    --bubble-mine-ink: var(--color-d-5);
     --header: var(--s-3, var(--color-d-3));
     --section-mark: var(--s-5, var(--color-d-5));
 }
@@ -159,6 +162,8 @@ html[data-theme='dark'] [data-color] {
     --error-ink: var(--s-5);
     --field-error: var(--s-2);
     --field-error-ink: var(--s-2);
+    --bubble-mine: var(--s-2);
+    --bubble-mine-ink: var(--s-5);
     --header: var(--s-4, var(--color-d-4));
     --section-mark: var(--s-2, var(--color-d-2));
 }
@@ -398,6 +403,8 @@ html[data-theme='dark'] :is(input, textarea, select):not([type='checkbox']):not(
     --color-error-ink: var(--error-ink);
     --color-field-error: var(--field-error);
     --color-field-error-ink: var(--field-error-ink);
+    --color-bubble-mine: var(--bubble-mine);
+    --color-bubble-mine-ink: var(--bubble-mine-ink);
     --color-badge: var(--badge);
     --color-notice: var(--notice);
     --color-panel: var(--panel);

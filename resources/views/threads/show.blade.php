@@ -1,90 +1,81 @@
 @extends('layouts.app')
 
+@section('title', filled($thread->title) ? $thread->title : __('threads.thread'))
+
+@canany(['update', 'archive', 'delete'], $thread)
+    @section('actions')
+        <x-ui.sheet-trigger for="manage-thread" icon :label="__('threads.manage')">
+            <x-icon name="dots" size="5" stroke="2" />
+        </x-ui.sheet-trigger>
+    @endsection
+@endcanany
+
 @section('content')
     <div
         x-data="liveRegion"
         data-fragment="replies"
         data-archived="{{ $thread->isArchived() ? '1' : '0' }}"
-        data-missing="{{ route('home') }}"
+        data-missing="{{ route('threads.index') }}"
         data-version="{{ $version }}"
         data-version-url="{{ route('threads.version') }}"
+        class="space-y-4"
     >
-        <a href="{{ $thread->isArchived() ? route('home', ['archived' => 1]) : route('home') }}" x-bind:href="archived ? '{{ route('home', ['archived' => 1]) }}' : '{{ route('home') }}'" class="inline-flex rounded-full bg-pill px-3 py-1 text-sm text-ink hover:bg-pill-active">{{ __('threads.back') }}</a>
-
-        <div class="mt-4 flex flex-col-reverse gap-4 sm:flex-row sm:items-start sm:gap-8">
-            <div class="min-w-0 flex-1">
-                @if (filled($thread->title))
-                    <h1 class="mb-3 inline-flex rounded-full bg-chip px-3 py-1 text-lg font-medium text-ink">{{ $thread->title }}</h1>
-                @endif
-
-                <x-message :author-id="$thread->user_id" :body="$thread->body" :author="$thread->user?->name" :posted-at="$thread->created_at">
-                    <x-slot:footer>
-                        <div x-ref="region">
-                            <x-replies :thread="$thread" />
-                        </div>
-                    </x-slot:footer>
-                </x-message>
-
-                @can('reply', $thread)
-                <form method="POST" action="{{ route('threads.replies.store', $thread) }}" class="threads-form mt-3 space-y-2 rounded-3xl p-3" x-show="!archived" @if ($thread->isArchived()) x-cloak @endif>
-                    @csrf
-
-                    <label class="block text-xs text-muted" for="reply-body">{{ __('threads.reply') }}</label>
-                    <textarea id="reply-body" name="body" rows="2" required maxlength="10000" class="w-full rounded-2xl bg-field px-3 py-2 text-sm text-ink">{{ old('body') }}</textarea>
-
-                    @error('body')
-                        <p class="rounded-2xl bg-danger-soft px-3 py-2 text-xs text-danger">{{ $message }}</p>
-                    @enderror
-
-                    <div class="flex justify-end">
-                        <button type="submit" class="rounded-full bg-[var(--color-a-5)] px-3 py-1 text-xs font-medium text-[var(--color-a-1)] hover:opacity-90">{{ __('threads.send_reply') }}</button>
-                    </div>
-                </form>
-                @endcan
-            </div>
-
-            @canany(['update', 'archive', 'delete'], $thread)
-                <aside class="w-full space-y-3 rounded-3xl bg-aside p-4 sm:w-48 sm:shrink-0">
+        @canany(['update', 'archive', 'delete'], $thread)
+            <x-ui.sheet name="manage-thread" :title="__('threads.manage')" :close="__('layout.close')" :open="$errors->has('title')">
+                <div class="space-y-4">
                     @can('update', $thread)
                         <form method="POST" action="{{ route('threads.update', $thread) }}" class="space-y-2">
                             @csrf
                             @method('PATCH')
 
-                            <label class="block text-xs text-muted" for="title">{{ __('threads.name') }}</label>
-                            <input id="title" name="title" type="text" value="{{ old('title', $thread->title) }}" maxlength="255" class="w-full rounded-2xl bg-field px-3 py-2 text-xs text-ink">
-
-                            @error('title')
-                                <p class="rounded-2xl bg-danger-soft px-3 py-2 text-xs text-danger">{{ $message }}</p>
-                            @enderror
-
-                            <button type="submit" class="rounded-full bg-button px-3 py-1 text-xs font-medium text-button-ink hover:opacity-90">{{ __('threads.save_name') }}</button>
+                            <x-ui.field :label="__('threads.name')" name="title" :value="old('title', $thread->title)" maxlength="255" />
+                            <x-ui.button type="submit" variant="tonal" class="w-full">{{ __('threads.save_name') }}</x-ui.button>
                         </form>
                     @endcan
 
-                    <div class="flex flex-col items-start gap-2">
-                        @can('archive', $thread)
-                            <form method="POST" action="{{ route('threads.unarchive', $thread) }}" x-show="archived" @unless ($thread->isArchived()) x-cloak @endunless>
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="rounded-full bg-pill px-3 py-1 text-xs text-ink hover:bg-pill-active">{{ __('threads.unarchive') }}</button>
-                            </form>
-                            <form method="POST" action="{{ route('threads.archive', $thread) }}" x-show="!archived" @if ($thread->isArchived()) x-cloak @endif>
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="rounded-full bg-pill px-3 py-1 text-xs text-ink hover:bg-pill-active">{{ __('threads.archive_thread') }}</button>
-                            </form>
-                        @endcan
+                    @can('archive', $thread)
+                        <form method="POST" action="{{ route('threads.unarchive', $thread) }}" x-show="archived" @unless ($thread->isArchived()) x-cloak @endunless>
+                            @csrf
+                            @method('PATCH')
+                            <x-ui.button type="submit" variant="tonal" class="w-full"><x-icon name="archive" size="5" />{{ __('threads.unarchive') }}</x-ui.button>
+                        </form>
+                        <form method="POST" action="{{ route('threads.archive', $thread) }}" x-show="! archived" @if ($thread->isArchived()) x-cloak @endif>
+                            @csrf
+                            @method('PATCH')
+                            <x-ui.button type="submit" variant="tonal" class="w-full"><x-icon name="archive" size="5" />{{ __('threads.archive_thread') }}</x-ui.button>
+                        </form>
+                    @endcan
 
-                        @can('delete', $thread)
-                            <form method="POST" action="{{ route('threads.destroy', $thread) }}" onsubmit="return confirm(@js(__('threads.confirm_delete_thread')))">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="rounded-full bg-danger-soft px-3 py-1 text-xs font-medium text-danger hover:opacity-90">{{ __('threads.delete_thread') }}</button>
-                            </form>
-                        @endcan
-                    </div>
-                </aside>
-            @endcanany
+                    @can('delete', $thread)
+                        <form method="POST" action="{{ route('threads.destroy', $thread) }}" onsubmit="return confirm(@js(__('threads.confirm_delete_thread')))">
+                            @csrf
+                            @method('DELETE')
+                            <x-ui.button type="submit" variant="danger" class="w-full"><x-icon name="trash" size="5" />{{ __('threads.delete_thread') }}</x-ui.button>
+                        </form>
+                    @endcan
+                </div>
+            </x-ui.sheet>
+        @endcanany
+
+        <x-message :author-id="$thread->user_id" :body="$thread->body" :author="$thread->user?->name" :posted-at="$thread->created_at" />
+
+        <div x-ref="region">
+            <x-replies :thread="$thread" />
         </div>
+
+        @can('reply', $thread)
+            <div class="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-10 -mx-4 bg-canvas px-4 py-2 sm:bottom-0 sm:mx-0 sm:px-0" x-show="! archived" @if ($thread->isArchived()) x-cloak @endif>
+                <x-ui.quick-add
+                    :label="__('threads.reply')"
+                    :placeholder="__('threads.reply_placeholder')"
+                    name="body"
+                    :action="route('threads.replies.store', $thread)"
+                    :value="old('body')"
+                    multiline
+                    required
+                    maxlength="10000"
+                />
+            </div>
+        @endcan
     </div>
 @endsection

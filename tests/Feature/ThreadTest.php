@@ -109,10 +109,10 @@ it('lists threads on the threads page', function () {
         ->assertSee('En tråd i listan')
         ->assertSee(__('threads.threads'))
         ->assertSee(__('threads.archive'))
-        ->assertSee('threads-form', false)
-        ->assertSee('bg-[var(--color-a-5)]', false)
-        ->assertSee('text-[var(--color-a-1)]', false)
-        ->assertDontSee('bg-form', false);
+        ->assertSee(__('threads.new_thread'))
+        ->assertSee('action="'.route('threads.store').'"', false)
+        ->assertSee('aria-current="page"', false)
+        ->assertDontSee('var(--color-', false);
 });
 
 it('requires a message to start a thread', function () {
@@ -299,20 +299,25 @@ it('misses a live thread that was deleted', function () {
         ->assertNotFound();
 });
 
-it('shows every reply under its thread on the home page', function () {
+it('shows the latest reply and the reply count under a thread in the list', function () {
     $thread = Thread::factory()->create(['body' => 'Startmeddelandet']);
     Reply::factory()->for($thread)->create(['body' => 'Första svaret']);
-    Reply::factory()->for($thread)->create(['body' => 'Andra svaret']);
+    $latest = Reply::factory()->for($thread)->create(['body' => 'Andra svaret', 'created_at' => now()->subDays(3)]);
     $removed = Reply::factory()->for($thread)->create(['body' => 'Borttaget svar']);
     $removed->delete();
 
-    $this->actingAs(User::factory()->create())
-        ->get(route('home'))
-        ->assertSuccessful()
-        ->assertSee('Startmeddelandet')
-        ->assertSeeInOrder(['Första svaret', 'Andra svaret'])
-        ->assertSee('thread-replies', false)
-        ->assertDontSee('Borttaget svar');
+    foreach (['home', 'threads.index'] as $page) {
+        $this->actingAs(User::factory()->create())
+            ->get(route($page))
+            ->assertSuccessful()
+            ->assertSee('Startmeddelandet')
+            ->assertSee('Andra svaret')
+            ->assertDontSee('Första svaret')
+            ->assertSee(trans_choice('threads.replies', 2))
+            ->assertSee('datetime="'.$latest->created_at->toAtomString().'"', false)
+            ->assertSee('href="'.route('threads.show', $thread).'"', false)
+            ->assertDontSee('Borttaget svar');
+    }
 });
 
 it('shows the current user as Me on their thread and replies', function () {
@@ -355,8 +360,43 @@ it('shows a thread and its replies', function () {
         ->assertSuccessful()
         ->assertSee('Startmeddelandet')
         ->assertSee('Första svaret')
-        ->assertSee('thread-replies', false)
-        ->assertSee(__('threads.reply'));
+        ->assertSee('data-archived="0"', false)
+        ->assertSee(__('threads.reply'))
+        ->assertSee(__('threads.reply_placeholder'));
+});
+
+it('shows a thread as chat bubbles with a manage panel for the author', function () {
+    $author = User::factory()->create();
+    $other = User::factory()->withFeatures(Feature::ReplyInThreads)->create(['name' => 'Nils']);
+    $thread = Thread::factory()->for($author)->create(['title' => 'Julklappar', 'body' => 'Hemlig tomte?']);
+    Reply::factory()->for($thread)->for($other)->create(['body' => 'Gärna']);
+
+    $this->actingAs($author)
+        ->get(route('threads.show', $thread))
+        ->assertSuccessful()
+        ->assertSee('Julklappar')
+        ->assertSee('bg-bubble-mine', false)
+        ->assertSee('rounded-bl-[4px]', false)
+        ->assertSee(__('threads.manage'))
+        ->assertSee("\$dispatch('open-sheet', 'manage-thread')", false)
+        ->assertSee('action="'.route('threads.update', $thread).'"', false)
+        ->assertDontSee('var(--color-', false);
+
+    $this->actingAs($other)
+        ->get(route('threads.show', $thread))
+        ->assertSuccessful()
+        ->assertSee('Hemlig tomte?')
+        ->assertDontSee(__('threads.manage'))
+        ->assertDontSee('action="'.route('threads.update', $thread).'"', false);
+});
+
+it('calls a thread without a name Thread in the top bar', function () {
+    $thread = Thread::factory()->create(['title' => null, 'body' => 'Utan namn']);
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('threads.show', $thread))
+        ->assertSuccessful()
+        ->assertSeeInOrder(['<h1', __('threads.thread'), '</h1>'], false);
 });
 
 it('lets another user reply', function () {
@@ -571,7 +611,7 @@ it('hides thread forms from a member without those grants', function () {
     $this->actingAs($member)
         ->get(route('threads.index'))
         ->assertSuccessful()
-        ->assertDontSee('threads-form', false);
+        ->assertDontSee('action="'.route('threads.store').'"', false);
 
     $this->actingAs($member)
         ->get(route('threads.show', $thread))

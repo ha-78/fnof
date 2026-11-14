@@ -2,6 +2,10 @@
 
 return [
     'threads' => 'Threads',
+    'thread' => 'Thread',
+    'new_thread' => 'New thread',
+    'manage' => 'Manage thread',
+    'reply_placeholder' => 'Write a reply …',
     'show_threads' => 'Show threads',
     'new' => 'Write a message',
     'publish' => 'Publish',

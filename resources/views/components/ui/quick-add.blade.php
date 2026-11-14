@@ -7,6 +7,7 @@
     'expandable' => false,
     'moreLabel' => null,
     'expanded' => false,
+    'multiline' => false,
 ])
 
 {{-- One card: heading, the main field with its add button, and any extra fields below a divider. --}}
@@ -14,7 +15,7 @@
     @if ($action) action="{{ $action }}" method="POST" @endif
     aria-labelledby="{{ $name }}-heading"
     @if ($expandable) x-data="{ more: @js((bool) $expanded) }" @endif
-    {{ $attributes->class('rounded-card border border-surface-line bg-surface p-3 shadow-sm') }}
+    {{ $attributes->except(['required', 'maxlength'])->class('rounded-card border border-surface-line bg-surface p-3 shadow-sm') }}
 >
     @if ($action)
         @csrf
@@ -44,20 +45,38 @@
         @endif
     </div>
 
-    <div class="flex items-center gap-2">
+    <div @class(['flex gap-2', 'items-end' => $multiline, 'items-center' => ! $multiline])>
         <label class="sr-only" for="{{ $name }}">{{ $placeholder ?? $label }}</label>
-        <input
-            id="{{ $name }}"
-            name="{{ $name }}"
-            value="{{ $value }}"
-            placeholder="{{ $placeholder ?? $label }}"
-            @error($name) aria-invalid="true" aria-describedby="{{ $name }}-error" @enderror
-            @class([
-                'h-11 min-w-0 flex-1 rounded-field border-2 bg-field px-3 text-[15px] text-field-ink placeholder:text-field-ink/60',
-                'border-field-error' => $errors->has($name),
-                'border-transparent' => ! $errors->has($name),
-            ])
-        >
+        @if ($multiline)
+            {{-- Grows with its text up to a few lines; Enter makes a new line, the button sends. --}}
+            <textarea
+                id="{{ $name }}"
+                name="{{ $name }}"
+                rows="1"
+                placeholder="{{ $placeholder ?? $label }}"
+                @error($name) aria-invalid="true" aria-describedby="{{ $name }}-error" @enderror
+                {{ $attributes->only(['required', 'maxlength']) }}
+                @class([
+                    'field-sizing-content max-h-40 min-h-11 min-w-0 flex-1 resize-none rounded-field border-2 bg-field px-3 py-2 text-[15px] text-field-ink placeholder:text-field-ink/60',
+                    'border-field-error' => $errors->has($name),
+                    'border-transparent' => ! $errors->has($name),
+                ])
+            >{{ $value }}</textarea>
+        @else
+            <input
+                id="{{ $name }}"
+                name="{{ $name }}"
+                value="{{ $value }}"
+                placeholder="{{ $placeholder ?? $label }}"
+                @error($name) aria-invalid="true" aria-describedby="{{ $name }}-error" @enderror
+                {{ $attributes->only(['required', 'maxlength']) }}
+                @class([
+                    'h-11 min-w-0 flex-1 rounded-field border-2 bg-field px-3 text-[15px] text-field-ink placeholder:text-field-ink/60',
+                    'border-field-error' => $errors->has($name),
+                    'border-transparent' => ! $errors->has($name),
+                ])
+            >
+        @endif
 
         <x-ui.button :type="$action ? 'submit' : 'button'" variant="primary" icon :aria-label="$label">
             <x-icon name="plus" size="5" stroke="1.8" />

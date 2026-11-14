@@ -2,6 +2,10 @@
 
 return [
     'threads' => 'Trådar',
+    'thread' => 'Tråd',
+    'new_thread' => 'Ny tråd',
+    'manage' => 'Hantera tråd',
+    'reply_placeholder' => 'Skriv ett svar …',
     'show_threads' => 'Visa trådar',
     'new' => 'Skriv ett meddelande',
     'publish' => 'Publicera',
